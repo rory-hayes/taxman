@@ -1,0 +1,53 @@
+# Cursor Rules for the Financial Dashboard & Tax Assistant
+
+## Overview
+These rules guide the development of the application based on the Supastarter boilerplate to ensure consistent coding practices, efficient development, and a seamless user experience.
+
+## References
+- Refer to `projectdescription.md` for a detailed outline of the project scope and milestones.
+- Maintain comprehensive and up-to-date documentation in `documentation.md` to ensure clarity and consistency throughout the project lifecycle.
+- Use the **Supastarter boilerplate** as the foundation for development.
+
+## Rules
+
+### 1. **Code Context**
+- Analyze and summarize all boilerplate files to understand their purpose and functionality before making modifications.
+- Identify reusable components and existing integrations to minimize redundant work and maintain consistency.
+
+### 2. **Authentication**
+- Customize the Supabase authentication system to include:
+  - Email/password and Gmail OAuth options.
+  - Onboarding steps to collect user data, including age range, location, job field, savings goals, payday date, and optional bank account details.
+
+### 3. **Dashboard**
+- Revise the existing dashboard to include:
+  - Widgets displaying key metrics (e.g., total salary, taxes paid, take-home pay, and savings goals).
+  - Responsive design implemented with Tailwind CSS.
+  - Interactive and dynamic charts created using Chart.js or Recharts.
+
+### 4. **OCR & AI Integration**
+- Implement Tesseract for OCR functionality to extract data from payslips and bank statements.
+- Leverage the OpenAI API to generate personalized insights and recommendations based on user data.
+
+### 5. **Data Privacy**
+- Encrypt all sensitive user data and ensure secure storage and retrieval using Supabase.
+- Adhere to GDPR/CCPA compliance requirements in all aspects of data handling and processing.
+
+### 6. **Documentation**
+- Keep a detailed and regularly updated `documentation.md` file that:
+  - Explains changes made to the boilerplate.
+  - Tracks implemented features, issues, and resolutions.
+  - Provides clear instructions for deployment, testing, and further iterations.
+
+### 7. **Testing**
+- Conduct thorough testing for all backend and frontend features, including:
+  - Unit tests for API endpoints and core logic.
+  - Integration tests for component interactions.
+  - UI testing to ensure compatibility across desktop and mobile environments.
+
+### 8. **Deployment**
+- Prepare the application for:
+  - Local hosting during the development phase.
+  - Deployment to Visualiser for user testing and feedback collection.
+- Ensure that the deployment process is well-documented in `documentation.md` for seamless replication and scalability.
+
