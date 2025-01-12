@@ -6,8 +6,8 @@ import { AuthProvider } from '@/providers/supabase-auth-provider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Financial Dashboard',
-  description: 'Track your finances, analyze payslips, and optimize savings',
+  title: 'TaxMan - Smart Financial Dashboard',
+  description: 'Take control of your finances with AI-powered insights',
 }
 
 export default function RootLayout({
