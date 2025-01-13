@@ -53,6 +53,9 @@ importers:
       '@radix-ui/react-popover':
         specifier: ^1.1.4
         version: 1.1.4(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-primitive':
+        specifier: ^2.0.1
+        version: 2.0.1(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@radix-ui/react-progress':
         specifier: ^1.1.1
         version: 1.1.1(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -189,6 +192,9 @@ importers:
       eslint-config-next:
         specifier: 14.1.0
         version: 14.1.0(eslint@8.57.1)(typescript@5.7.3)
+      eslint-config-prettier:
+        specifier: ^10.0.1
+        version: 10.0.1(eslint@8.57.1)
       eslint-plugin-react:
         specifier: ^7.33.2
         version: 7.37.3(eslint@8.57.1)
@@ -798,7 +804,7 @@ packages:
   '@radix-ui/react-context@1.1.1':
     resolution: {integrity: sha512-UASk9zi+crv9WteK/NU4PLvOoL3OuE6BWVKNF6hPRBtYBDXQ2u5iu3O59zUlJiTVvkyuycnqrztsHVJwcK9K+Q==}
     peerDependencies:
-      '@types/react': npm:types-react@19.0.0-rc.1
+      '@types/react': '*'
       react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
     peerDependenciesMeta:
       '@types/react':
@@ -890,7 +896,7 @@ packages:
   '@radix-ui/react-id@1.1.0':
     resolution: {integrity: sha512-EJUrI8yYh7WOjNOqpoJaf1jlFIH2LvtgAl+YcFqNCa+4hj64ZXmPkAKOFs/ukjz3byN6bdb/AVUqHkI8/uWWMA==}
     peerDependencies:
-      '@types/react': npm:types-react@19.0.0-rc.1
+      '@types/react': '*'
       react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
     peerDependenciesMeta:
       '@types/react':
@@ -2092,6 +2098,12 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
+
+  eslint-config-prettier@10.0.1:
+    resolution: {integrity: sha512-lZBts941cyJyeaooiKxAtzoPHTN+GbQTJFAIdQbRhA4/8whaAraEh47Whw/ZFfrjNSnlAxqfm9i0XVAEkULjCw==}
+    hasBin: true
+    peerDependencies:
+      eslint: '>=7.0.0'
 
   eslint-import-resolver-node@0.3.9:
     resolution: {integrity: sha512-WFj2isz22JahUv+B788TlO3N6zL3nNJGU8CcZbPZvVEkBPaJdCV4vy5wyghty5ROFbCRnm132v8BScu5/1BQ8g==}
@@ -6286,6 +6298,10 @@ snapshots:
       - eslint-import-resolver-webpack
       - eslint-plugin-import-x
       - supports-color
+
+  eslint-config-prettier@10.0.1(eslint@8.57.1):
+    dependencies:
+      eslint: 8.57.1
 
   eslint-import-resolver-node@0.3.9:
     dependencies:
