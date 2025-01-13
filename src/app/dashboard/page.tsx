@@ -33,17 +33,19 @@ export default async function DashboardPage() {
     user?.email?.split('@')[0] || 'User'
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-muted/40">
-      <aside className="fixed inset-y-0 left-0 z-10 hidden w-16 flex-col border-r bg-background sm:flex">
+    <div className="min-h-screen">
+      {/* Sidebar */}
+      <aside className="fixed left-0 top-0 z-40 h-full w-16 border-r bg-background">
         <div className="flex h-14 items-center justify-center border-b">
-          <Link href="#" className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+          <Link href="/" className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <DollarSign className="h-5 w-5" />
           </Link>
         </div>
-        <nav className="flex flex-col items-center gap-4 p-2 pt-4">
+        
+        <nav className="flex flex-col gap-4 p-2 pt-4">
           <Link 
             href="#overview" 
-            className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-accent-foreground tooltip-right" 
+            className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-accent-foreground" 
             title="Overview"
           >
             <BarChart3 className="h-5 w-5" />
@@ -70,7 +72,8 @@ export default async function DashboardPage() {
             <Calculator className="h-5 w-5" />
           </Link>
         </nav>
-        <nav className="mt-auto flex flex-col items-center gap-4 p-2 pb-4">
+
+        <nav className="absolute bottom-0 left-0 right-0 p-2">
           <Link 
             href="#settings" 
             className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground"
@@ -80,9 +83,11 @@ export default async function DashboardPage() {
           </Link>
         </nav>
       </aside>
-      
-      <div className="flex flex-col sm:pl-16">
-        <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b bg-background px-4">
+
+      {/* Main Content Area */}
+      <div className="pl-16">
+        {/* Header */}
+        <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b bg-background px-4">
           <h1 className="text-lg font-semibold">Overview</h1>
           <div className="flex items-center gap-4">
             <div className="relative">
@@ -114,8 +119,8 @@ export default async function DashboardPage() {
         </header>
 
         {/* Main Content */}
-        <main className="grid flex-1 items-start gap-4 p-4 md:gap-8">
-          <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
+        <main className="p-4">
+          <div className="grid auto-rows-max gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
             <Card>
               <CardHeader className="pb-2">
                 <CardDescription>Tax Paid This Year</CardDescription>
