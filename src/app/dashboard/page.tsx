@@ -117,25 +117,9 @@ export default async function DashboardPage() {
         <main className="grid flex-1 items-start gap-4 p-4 md:gap-8">
           <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle>Financial Overview</CardTitle>
-                <CardDescription className="max-w-lg text-balance leading-relaxed">
-                  Your tax and income summary for the current financial year.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold">£45,231.89</div>
-                <div className="text-sm text-muted-foreground">Total Income</div>
-              </CardContent>
-              <CardFooter>
-                <Button variant="outline">View Details</Button>
-              </CardFooter>
-            </Card>
-
-            <Card>
               <CardHeader className="pb-2">
                 <CardDescription>Tax Paid This Year</CardDescription>
-                <CardTitle className="text-4xl">£8,329</CardTitle>
+                <CardTitle className="text-4xl">€8,329</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-xs text-muted-foreground">75% of estimated tax</div>
@@ -148,7 +132,7 @@ export default async function DashboardPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardDescription>Savings Goal</CardDescription>
-                <CardTitle className="text-4xl">£12,000</CardTitle>
+                <CardTitle className="text-4xl">€12,000</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-xs text-muted-foreground">60% achieved</div>
@@ -157,6 +141,22 @@ export default async function DashboardPage() {
                 <Progress value={60} className="w-full" aria-label="60% of savings goal achieved" />
               </CardFooter>
             </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle>Financial Overview</CardTitle>
+                <CardDescription>Your tax and income summary for the current financial year.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-4xl font-bold">£45,231.89</div>
+                <div className="text-sm text-muted-foreground">Total Income</div>
+              </CardContent>
+              <CardFooter>
+                <Button variant="outline">View Details</Button>
+              </CardFooter>
+            </Card>
+
+            <FinancialChart />
 
             <Card className="col-span-full lg:col-span-2">
               <CardHeader className="px-7">
@@ -280,8 +280,6 @@ export default async function DashboardPage() {
                 </Button>
               </CardFooter>
             </Card>
-
-            <FinancialChart />
           </div>
         </main>
       </div>
