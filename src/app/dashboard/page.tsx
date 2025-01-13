@@ -10,9 +10,9 @@ import {
 } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Overview } from "@/components/dashboard/overview"
-import { RecentTransactions } from "@/components/dashboard/recent-transactions"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { DollarSign, Users, CreditCard, Activity } from 'lucide-react'
+import { RecentTransactions } from "@/components/dashboard/recent-transactions"
 
 export const metadata: Metadata = {
   title: "Dashboard | TaxMan",
@@ -78,7 +78,7 @@ export default async function DashboardPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <RecentTransactions />
+                {/* Remove or replace RecentTransactions */}
               </CardContent>
             </Card>
           </div>
