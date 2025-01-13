@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { 
   DollarSign, PiggyBank, Calculator, BarChart3, 
-  Receipt, Settings, Search, Menu, User, Plus, MoreVertical, Upload
+  Receipt, Settings, Search, Menu, User, Plus, MoreVertical, Upload, Bell
 } from 'lucide-react'
 import { FinancialChart } from "../../components/dashboard/financial-chart"
 
@@ -35,51 +35,80 @@ export default async function DashboardPage() {
   return (
     <div className="min-h-screen">
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 z-40 h-full w-16 border-r bg-background">
-        <div className="flex h-14 items-center justify-center border-b">
-          <Link href="/" className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <DollarSign className="h-5 w-5" />
+      <aside className="fixed left-0 top-0 z-40 h-full w-16 border-r bg-background transition-all duration-300 hover:w-64">
+        <div className="flex h-14 items-center justify-center border-b px-4">
+          <Link href="/" className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <DollarSign className="h-5 w-5" />
+            </div>
+            <span className="whitespace-nowrap text-lg font-semibold opacity-0 transition-all duration-300 group-hover:opacity-100">
+              TaxMan
+            </span>
           </Link>
         </div>
         
-        <nav className="flex flex-col gap-4 p-2 pt-4">
+        <nav className="flex flex-col gap-2 p-2">
           <Link 
             href="#overview" 
-            className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-accent-foreground" 
-            title="Overview"
+            className="flex h-10 items-center gap-3 rounded-lg bg-accent px-3 text-accent-foreground" 
           >
             <BarChart3 className="h-5 w-5" />
+            <span className="whitespace-nowrap opacity-0 transition-all duration-300 hover:opacity-100">Overview</span>
           </Link>
           <Link 
             href="#payslips" 
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground" 
-            title="Payslips"
+            className="flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-accent hover:text-accent-foreground" 
           >
             <Receipt className="h-5 w-5" />
+            <span className="whitespace-nowrap opacity-0 transition-all duration-300 hover:opacity-100">Payslips</span>
           </Link>
           <Link 
             href="#savings" 
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground" 
-            title="Savings"
+            className="flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-accent hover:text-accent-foreground" 
           >
             <PiggyBank className="h-5 w-5" />
+            <span className="whitespace-nowrap opacity-0 transition-all duration-300 hover:opacity-100">Savings</span>
           </Link>
           <Link 
             href="#tax" 
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground" 
-            title="Tax Analysis"
+            className="flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-accent hover:text-accent-foreground" 
           >
             <Calculator className="h-5 w-5" />
+            <span className="whitespace-nowrap opacity-0 transition-all duration-300 hover:opacity-100">Tax Analysis</span>
+          </Link>
+          
+          <div className="my-2 border-t" />
+          
+          <Link 
+            href="#search" 
+            className="flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-accent hover:text-accent-foreground" 
+          >
+            <Search className="h-5 w-5" />
+            <span className="whitespace-nowrap opacity-0 transition-all duration-300 hover:opacity-100">Search</span>
+          </Link>
+          <Link 
+            href="#notifications" 
+            className="flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-accent hover:text-accent-foreground" 
+          >
+            <Bell className="h-5 w-5" />
+            <span className="whitespace-nowrap opacity-0 transition-all duration-300 hover:opacity-100">Notifications</span>
           </Link>
         </nav>
 
-        <nav className="absolute bottom-0 left-0 right-0 p-2">
+        <nav className="absolute bottom-0 left-0 right-0 flex flex-col gap-2 border-t p-2">
+          <Link 
+            href="#profile" 
+            className="flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+          >
+            <User className="h-5 w-5" />
+            <span className="whitespace-nowrap opacity-0 transition-all duration-300 hover:opacity-100">Profile</span>
+          </Link>
           <Link 
             href="#settings" 
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-            title="Settings"
+            className="flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
           >
             <Settings className="h-5 w-5" />
+            <span className="whitespace-nowrap opacity-0 transition-all duration-300 hover:opacity-100">Settings</span>
           </Link>
         </nav>
       </aside>
@@ -87,35 +116,8 @@ export default async function DashboardPage() {
       {/* Main Content Area */}
       <div className="pl-16">
         {/* Header */}
-        <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b bg-background px-4">
+        <header className="sticky top-0 z-30 flex h-14 items-center border-b bg-background px-4">
           <h1 className="text-lg font-semibold">Overview</h1>
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search transactions..."
-                className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[300px]"
-              />
-            </div>
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="rounded-full">
-                  <User className="h-5 w-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Profile</DropdownMenuItem>
-                <DropdownMenuItem>Tax Settings</DropdownMenuItem>
-                <DropdownMenuItem>Support</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Sign Out</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
         </header>
 
         {/* Main Content */}
