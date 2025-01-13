@@ -12,6 +12,7 @@ import { Select } from '@/components/ui/select'
 type Step = 'credentials' | 'profile' | 'goals'
 
 interface ProfileData {
+  displayName: string
   ageRange: string
   location: string
   jobField: string
@@ -36,6 +37,7 @@ export default function Register() {
 
   // Profile state
   const [profile, setProfile] = useState<ProfileData>({
+    displayName: '',
     ageRange: '',
     location: '',
     jobField: '',
@@ -90,6 +92,21 @@ export default function Register() {
           <form onSubmit={handleCredentialsSubmit} className="space-y-6">
             <div className="space-y-4">
               <div>
+                <label htmlFor="displayName" className="block text-sm font-medium text-gray-700">
+                  Display Name
+                </label>
+                <Input
+                  id="displayName"
+                  type="text"
+                  value={profile.displayName}
+                  onChange={(e) => setProfile({ ...profile, displayName: e.target.value })}
+                  required
+                  className="mt-1"
+                  placeholder="John Doe"
+                />
+              </div>
+
+              <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                   Email address
                 </label>
@@ -97,7 +114,7 @@ export default function Register() {
                   id="email"
                   type="email"
                   value={email}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                   className="mt-1"
                   placeholder="you@example.com"
@@ -112,7 +129,7 @@ export default function Register() {
                   id="password"
                   type="password"
                   value={password}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                   className="mt-1"
                   placeholder="••••••••"
@@ -161,21 +178,50 @@ export default function Register() {
             <div className="space-y-4">
               <div>
                 <label htmlFor="savingsGoal" className="block text-sm font-medium text-gray-700">
-                  Annual Savings Goal
+                  Annual Savings Goal (£)
                 </label>
-                <Input
-                  id="savingsGoal"
-                  type="number"
-                  value={goals.savingsGoal}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                    setGoals({ ...goals, savingsGoal: Number(e.target.value) })}
-                  required
-                  className="mt-1"
-                  placeholder="10000"
-                />
+                <div className="relative mt-1">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                    <span className="text-gray-500 sm:text-sm">£</span>
+                  </div>
+                  <Input
+                    id="savingsGoal"
+                    type="number"
+                    min="0"
+                    step="100"
+                    value={goals.savingsGoal}
+                    onChange={(e) => setGoals({ 
+                      ...goals, 
+                      savingsGoal: Number(e.target.value),
+                      monthlyTarget: Math.round(Number(e.target.value) / 12)
+                    })}
+                    required
+                    className="pl-7"
+                    placeholder="10000"
+                  />
+                </div>
+                {goals.savingsGoal > 0 && (
+                  <p className="mt-2 text-sm text-gray-600">
+                    Monthly target: £{(goals.savingsGoal / 12).toFixed(2)}
+                  </p>
+                )}
               </div>
 
-              {/* Add other goals fields */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Preferred Payday
+                </label>
+                <Input
+                  type="number"
+                  min="1"
+                  max="31"
+                  value={profile.payDate}
+                  onChange={(e) => setProfile({ ...profile, payDate: e.target.value })}
+                  required
+                  className="mt-1"
+                  placeholder="Day of month (1-31)"
+                />
+              </div>
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>
