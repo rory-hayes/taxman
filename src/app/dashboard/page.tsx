@@ -19,7 +19,7 @@ import {
   Receipt, Settings, Search, Menu, User, Plus, MoreVertical, Upload, Bell
 } from 'lucide-react'
 import { FinancialChart } from "../../components/dashboard/financial-chart"
-import { PayslipUploadDialog } from "../../components/payslips/upload-dialog"
+import { PayslipProcessor } from "../../components/payslips/payslip-processor"
 
 export const metadata: Metadata = {
   title: "Dashboard | TaxMan",
@@ -65,31 +65,31 @@ export default async function DashboardPage() {
           </Link>
           <Link 
             href="#savings" 
-            className="flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-accent hover:text-accent-foreground" 
+            className="flex h-10 items-center gap-3 rounded-lg px-3 text-foreground hover:bg-accent hover:text-accent-foreground" 
           >
-            <PiggyBank className="h-5 w-5" />
-            <span className="whitespace-nowrap opacity-0 transition-all duration-300 hover:opacity-100">Savings</span>
+            <PiggyBank className="h-5 w-5 shrink-0" />
+            <span className="whitespace-nowrap overflow-hidden">Savings</span>
           </Link>
           <Link 
             href="#tax" 
-            className="flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-accent hover:text-accent-foreground" 
+            className="flex h-10 items-center gap-3 rounded-lg px-3 text-foreground hover:bg-accent hover:text-accent-foreground" 
           >
-            <Calculator className="h-5 w-5" />
-            <span className="whitespace-nowrap opacity-0 transition-all duration-300 hover:opacity-100">Tax Analysis</span>
+            <Calculator className="h-5 w-5 shrink-0" />
+            <span className="whitespace-nowrap overflow-hidden">Tax Analysis</span>
           </Link>
           
           <div className="my-2 border-t" />
           
           <Link 
             href="#search" 
-            className="flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-accent hover:text-accent-foreground" 
+            className="flex h-10 items-center gap-3 rounded-lg px-3 text-foreground hover:bg-accent hover:text-accent-foreground" 
           >
             <Search className="h-5 w-5 shrink-0" />
             <span className="whitespace-nowrap overflow-hidden">Search</span>
           </Link>
           <Link 
             href="#notifications" 
-            className="flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-accent hover:text-accent-foreground" 
+            className="flex h-10 items-center gap-3 rounded-lg px-3 text-foreground hover:bg-accent hover:text-accent-foreground" 
           >
             <Bell className="h-5 w-5 shrink-0" />
             <span className="whitespace-nowrap overflow-hidden">Notifications</span>
@@ -220,10 +220,7 @@ export default async function DashboardPage() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle>Payslips</CardTitle>
-                  <Button variant="outline" size="icon" className="h-8 w-8">
-                    <Plus className="h-4 w-4" />
-                    <span className="sr-only">Upload payslip</span>
-                  </Button>
+                  <PayslipProcessor />
                 </div>
                 <CardDescription>Upload and manage your payslips</CardDescription>
               </CardHeader>
@@ -281,9 +278,6 @@ export default async function DashboardPage() {
                   {/* Add more payslips here */}
                 </div>
               </CardContent>
-              <CardFooter>
-                <PayslipUploadDialog />
-              </CardFooter>
             </Card>
           </div>
         </main>
