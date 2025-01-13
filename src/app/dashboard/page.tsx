@@ -19,6 +19,7 @@ import {
   Receipt, Settings, Search, Menu, User, Plus, MoreVertical, Upload, Bell
 } from 'lucide-react'
 import { FinancialChart } from "../../components/dashboard/financial-chart"
+import { PayslipUploadDialog } from "../../components/payslips/upload-dialog"
 
 export const metadata: Metadata = {
   title: "Dashboard | TaxMan",
@@ -41,7 +42,7 @@ export default async function DashboardPage() {
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <DollarSign className="h-5 w-5" />
             </div>
-            <span className="whitespace-nowrap text-lg font-semibold opacity-0 transition-all duration-300 group-hover:opacity-100">
+            <span className="whitespace-nowrap text-lg font-semibold">
               TaxMan
             </span>
           </Link>
@@ -52,15 +53,15 @@ export default async function DashboardPage() {
             href="#overview" 
             className="flex h-10 items-center gap-3 rounded-lg bg-accent px-3 text-accent-foreground" 
           >
-            <BarChart3 className="h-5 w-5" />
-            <span className="whitespace-nowrap opacity-0 transition-all duration-300 hover:opacity-100">Overview</span>
+            <BarChart3 className="h-5 w-5 shrink-0" />
+            <span className="whitespace-nowrap overflow-hidden">Overview</span>
           </Link>
           <Link 
             href="#payslips" 
             className="flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-accent hover:text-accent-foreground" 
           >
-            <Receipt className="h-5 w-5" />
-            <span className="whitespace-nowrap opacity-0 transition-all duration-300 hover:opacity-100">Payslips</span>
+            <Receipt className="h-5 w-5 shrink-0" />
+            <span className="whitespace-nowrap overflow-hidden">Payslips</span>
           </Link>
           <Link 
             href="#savings" 
@@ -83,15 +84,15 @@ export default async function DashboardPage() {
             href="#search" 
             className="flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-accent hover:text-accent-foreground" 
           >
-            <Search className="h-5 w-5" />
-            <span className="whitespace-nowrap opacity-0 transition-all duration-300 hover:opacity-100">Search</span>
+            <Search className="h-5 w-5 shrink-0" />
+            <span className="whitespace-nowrap overflow-hidden">Search</span>
           </Link>
           <Link 
             href="#notifications" 
             className="flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-accent hover:text-accent-foreground" 
           >
-            <Bell className="h-5 w-5" />
-            <span className="whitespace-nowrap opacity-0 transition-all duration-300 hover:opacity-100">Notifications</span>
+            <Bell className="h-5 w-5 shrink-0" />
+            <span className="whitespace-nowrap overflow-hidden">Notifications</span>
           </Link>
         </nav>
 
@@ -100,15 +101,15 @@ export default async function DashboardPage() {
             href="#profile" 
             className="flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
           >
-            <User className="h-5 w-5" />
-            <span className="whitespace-nowrap opacity-0 transition-all duration-300 hover:opacity-100">Profile</span>
+            <User className="h-5 w-5 shrink-0" />
+            <span className="whitespace-nowrap overflow-hidden">Profile</span>
           </Link>
           <Link 
             href="#settings" 
             className="flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
           >
-            <Settings className="h-5 w-5" />
-            <span className="whitespace-nowrap opacity-0 transition-all duration-300 hover:opacity-100">Settings</span>
+            <Settings className="h-5 w-5 shrink-0" />
+            <span className="whitespace-nowrap overflow-hidden">Settings</span>
           </Link>
         </nav>
       </aside>
@@ -281,10 +282,7 @@ export default async function DashboardPage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full">
-                  <Upload className="mr-2 h-4 w-4" />
-                  Upload New Payslip
-                </Button>
+                <PayslipUploadDialog />
               </CardFooter>
             </Card>
           </div>
