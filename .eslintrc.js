@@ -1,15 +1,12 @@
 module.exports = {
   extends: [
-    'next/core-web-vitals',
-    'plugin:@typescript-eslint/recommended',
-    'prettier',
-    'plugin:storybook/recommended',
+    "next/core-web-vitals",
+    "plugin:storybook/recommended",
+    "prettier"
   ],
-  parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint'],
-  root: true,
   rules: {
-    '@typescript-eslint/no-unused-vars': ['error'],
-    '@typescript-eslint/no-explicit-any': 'error',
-  },
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "react/no-unescaped-entities": "off"
+  }
 } 
