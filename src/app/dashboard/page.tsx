@@ -1,18 +1,23 @@
 import { Metadata } from "next"
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+import Link from "next/link"
+import { 
+  Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter 
 } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Overview } from "@/components/dashboard/overview"
-import { DashboardHeader } from "@/components/dashboard/dashboard-header"
-import { DollarSign, Users, CreditCard, Activity, TrendingUp, PiggyBank, Calculator } from 'lucide-react'
-import { DateRangePicker } from "@/components/dashboard/date-range-picker"
+import { Progress } from "../../components/ui/progress"
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "../../components/ui/table"
+import { Badge } from "../../components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import {
+  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent,
+  DropdownMenuLabel, DropdownMenuItem, DropdownMenuSeparator
+} from "@/components/ui/dropdown-menu"
+import { 
+  DollarSign, PiggyBank, Calculator, BarChart3, 
+  Receipt, Settings, Search, Menu, User
+} from 'lucide-react'
 
 export const metadata: Metadata = {
   title: "Dashboard | TaxMan",
@@ -27,141 +32,178 @@ export default async function DashboardPage() {
     user?.email?.split('@')[0] || 'User'
 
   return (
-    <div className="flex-1 space-y-6 p-4 md:p-8 pt-6 bg-gray-50 dark:bg-gray-900">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <DashboardHeader displayName={displayName} />
-        <DateRangePicker />
-      </div>
+    <div className="flex min-h-screen w-full flex-col bg-muted/40">
+      <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
+        <nav className="flex flex-col items-center gap-4 px-2 sm:py-5">
+          <Link href="#" className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <DollarSign className="h-5 w-5" />
+          </Link>
+          <Link href="#" className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-accent-foreground">
+            <BarChart3 className="h-5 w-5" />
+          </Link>
+          <Link href="#" className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground">
+            <Receipt className="h-5 w-5" />
+          </Link>
+          <Link href="#" className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground">
+            <Calculator className="h-5 w-5" />
+          </Link>
+        </nav>
+        <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
+          <Link href="#" className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground">
+            <Settings className="h-5 w-5" />
+          </Link>
+        </nav>
+      </aside>
       
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Income
-            </CardTitle>
-            <DollarSign className="h-4 w-4 text-emerald-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">£45,231.89</div>
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="h-4 w-4 text-emerald-500" />
-              <p className="text-xs text-emerald-500">
-                +20.1% from last year
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4">
+          <div className="relative ml-auto flex-1 md:grow-0">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search transactions..."
+              className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[300px]"
+            />
+          </div>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon" className="rounded-full">
+                <User className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Profile</DropdownMenuItem>
+              <DropdownMenuItem>Tax Settings</DropdownMenuItem>
+              <DropdownMenuItem>Support</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Sign Out</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </header>
 
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Tax Paid
-            </CardTitle>
-            <Calculator className="h-4 w-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">£12,458.32</div>
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="h-4 w-4 text-blue-500" />
-              <p className="text-xs text-blue-500">
-                On track with estimates
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Savings
-            </CardTitle>
-            <PiggyBank className="h-4 w-4 text-purple-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">£8,392.12</div>
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="h-4 w-4 text-purple-500" />
-              <p className="text-xs text-purple-500">
-                +12.3% this month
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Take-Home Pay
-            </CardTitle>
-            <Activity className="h-4 w-4 text-orange-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">£32,773.57</div>
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="h-4 w-4 text-orange-500" />
-              <p className="text-xs text-orange-500">
-                +5.2% vs last month
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="bg-white dark:bg-gray-800 p-1 rounded-lg">
-          <TabsTrigger value="overview" className="text-sm">Overview</TabsTrigger>
-          <TabsTrigger value="analytics" className="text-sm">Analytics</TabsTrigger>
-          <TabsTrigger value="reports" className="text-sm">Reports</TabsTrigger>
-          <TabsTrigger value="insights" className="text-sm">AI Insights</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-            <Card className="col-span-4 hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle className="text-xl flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-primary" />
-                  Financial Overview
-                </CardTitle>
-                <CardDescription>
-                  Your income and tax breakdown for the current tax year
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pl-2">
-                <Overview />
-              </CardContent>
-            </Card>
-
-            <Card className="col-span-3 hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle className="text-xl flex items-center gap-2">
-                  <Activity className="h-5 w-5 text-primary" />
-                  Recent Activity
-                </CardTitle>
-                <CardDescription>
-                  Your latest financial updates and notifications
+        {/* Main Content */}
+        <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
+          <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle>Financial Overview</CardTitle>
+                <CardDescription className="max-w-lg text-balance leading-relaxed">
+                  Your tax and income summary for the current financial year.
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {/* Add activity items here */}
-                  <div className="flex items-center gap-4 p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
-                    <div className="h-8 w-8 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center">
-                      <DollarSign className="h-4 w-4 text-emerald-500" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">Salary Received</p>
-                      <p className="text-xs text-muted-foreground">Today at 9:30 AM</p>
-                    </div>
-                    <div className="text-sm font-medium text-emerald-500">+£3,250.00</div>
+                <div className="text-4xl font-bold">£45,231.89</div>
+                <div className="text-sm text-muted-foreground">Total Income</div>
+              </CardContent>
+              <CardFooter>
+                <Button variant="outline">View Details</Button>
+              </CardFooter>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription>Tax Paid This Year</CardDescription>
+                <CardTitle className="text-4xl">£8,329</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-xs text-muted-foreground">75% of estimated tax</div>
+              </CardContent>
+              <CardFooter>
+                <Progress value={75} className="w-full" aria-label="75% of tax paid" />
+              </CardFooter>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription>Savings Goal</CardDescription>
+                <CardTitle className="text-4xl">£12,000</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-xs text-muted-foreground">60% achieved</div>
+              </CardContent>
+              <CardFooter>
+                <Progress value={60} className="w-full" aria-label="60% of savings goal achieved" />
+              </CardFooter>
+            </Card>
+
+            <Card className="col-span-full lg:col-span-2">
+              <CardHeader className="px-7">
+                <CardTitle>Recent Transactions</CardTitle>
+                <CardDescription>Your latest financial activities.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Description</TableHead>
+                      <TableHead className="hidden sm:table-cell">Category</TableHead>
+                      <TableHead className="hidden sm:table-cell">Status</TableHead>
+                      <TableHead className="hidden md:table-cell">Date</TableHead>
+                      <TableHead className="text-right">Amount</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell>
+                        <div className="font-medium">Salary Payment</div>
+                        <div className="hidden text-sm text-muted-foreground md:inline">Monthly Income</div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">Income</TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <Badge className="text-xs" variant="secondary">
+                          Received
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">2024-03-25</TableCell>
+                      <TableCell className="text-right text-emerald-600">+£3,750.00</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>
+                        <div className="font-medium">Tax Payment</div>
+                        <div className="hidden text-sm text-muted-foreground md:inline">Quarterly Tax</div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">Tax</TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <Badge className="text-xs" variant="outline">
+                          Pending
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">2024-03-24</TableCell>
+                      <TableCell className="text-right text-red-600">-£950.00</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+
+            <Card className="col-span-full lg:col-span-1">
+              <CardHeader>
+                <CardTitle>Upcoming Tax Deadlines</CardTitle>
+                <CardDescription>Important dates to remember</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium">Self Assessment</div>
+                    <div className="text-sm text-muted-foreground">Final submission</div>
                   </div>
-                  {/* Add more activity items */}
+                  <Badge variant="outline">31 Jan 2025</Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium">Tax Payment</div>
+                    <div className="text-sm text-muted-foreground">Second payment on account</div>
+                  </div>
+                  <Badge variant="outline">31 Jul 2024</Badge>
                 </div>
               </CardContent>
             </Card>
           </div>
-        </TabsContent>
-      </Tabs>
+        </main>
+      </div>
     </div>
   )
 } 
