@@ -52,10 +52,17 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        // // IconLeft: () => <ChevronLeft className="h-4 w-4" />,
-        // IconRight: () => <ChevronRight className="h-4 w-4" />,
-        // CaptionLabel: ({ ...props }) => <span {...props} />,
-        // Dropdown: ({ ...props }) => <select {...props} />
+        // Temporarily commenting out navigation buttons
+        // IconLeft: ({ ...props }) => (
+        //   <button {...props}>
+        //     <ChevronLeft className="h-4 w-4" />
+        //   </button>
+        // ),
+        // IconRight: ({ ...props }) => (
+        //   <button {...props}>
+        //     <ChevronRight className="h-4 w-4" />
+        //   </button>
+        // ),
       }}
       {...props}
     />
