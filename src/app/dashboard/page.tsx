@@ -16,8 +16,9 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { 
   DollarSign, PiggyBank, Calculator, BarChart3, 
-  Receipt, Settings, Search, Menu, User
+  Receipt, Settings, Search, Menu, User, Plus, MoreVertical, Upload
 } from 'lucide-react'
+import { FinancialChart } from "../../components/dashboard/financial-chart"
 
 export const metadata: Metadata = {
   title: "Dashboard | TaxMan",
@@ -33,59 +34,87 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
-      <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
-        <nav className="flex flex-col items-center gap-4 px-2 sm:py-5">
+      <aside className="fixed inset-y-0 left-0 z-10 hidden w-16 flex-col border-r bg-background sm:flex">
+        <div className="flex h-14 items-center justify-center border-b">
           <Link href="#" className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <DollarSign className="h-5 w-5" />
           </Link>
-          <Link href="#" className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-accent-foreground">
+        </div>
+        <nav className="flex flex-col items-center gap-4 p-2 pt-4">
+          <Link 
+            href="#overview" 
+            className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-accent-foreground tooltip-right" 
+            title="Overview"
+          >
             <BarChart3 className="h-5 w-5" />
           </Link>
-          <Link href="#" className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground">
+          <Link 
+            href="#payslips" 
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground" 
+            title="Payslips"
+          >
             <Receipt className="h-5 w-5" />
           </Link>
-          <Link href="#" className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground">
+          <Link 
+            href="#savings" 
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground" 
+            title="Savings"
+          >
+            <PiggyBank className="h-5 w-5" />
+          </Link>
+          <Link 
+            href="#tax" 
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground" 
+            title="Tax Analysis"
+          >
             <Calculator className="h-5 w-5" />
           </Link>
         </nav>
-        <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
-          <Link href="#" className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground">
+        <nav className="mt-auto flex flex-col items-center gap-4 p-2 pb-4">
+          <Link 
+            href="#settings" 
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+            title="Settings"
+          >
             <Settings className="h-5 w-5" />
           </Link>
         </nav>
       </aside>
       
-      <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4">
-          <div className="relative ml-auto flex-1 md:grow-0">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search transactions..."
-              className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[300px]"
-            />
+      <div className="flex flex-col sm:pl-16">
+        <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b bg-background px-4">
+          <h1 className="text-lg font-semibold">Overview</h1>
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search transactions..."
+                className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[300px]"
+              />
+            </div>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className="rounded-full">
+                  <User className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>Profile</DropdownMenuItem>
+                <DropdownMenuItem>Tax Settings</DropdownMenuItem>
+                <DropdownMenuItem>Support</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>Sign Out</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" className="rounded-full">
-                <User className="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Tax Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Sign Out</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </header>
 
         {/* Main Content */}
-        <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
+        <main className="grid flex-1 items-start gap-4 p-4 md:gap-8">
           <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
             <Card>
               <CardHeader className="pb-3">
@@ -181,26 +210,78 @@ export default async function DashboardPage() {
 
             <Card className="col-span-full lg:col-span-1">
               <CardHeader>
-                <CardTitle>Upcoming Tax Deadlines</CardTitle>
-                <CardDescription>Important dates to remember</CardDescription>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Payslips</CardTitle>
+                  <Button variant="outline" size="icon" className="h-8 w-8">
+                    <Plus className="h-4 w-4" />
+                    <span className="sr-only">Upload payslip</span>
+                  </Button>
+                </div>
+                <CardDescription>Upload and manage your payslips</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium">Self Assessment</div>
-                    <div className="text-sm text-muted-foreground">Final submission</div>
+                {/* Example payslips - will be replaced with real data */}
+                <div className="space-y-4 divide-y divide-border">
+                  <div className="flex items-start justify-between pt-4 first:pt-0">
+                    <div>
+                      <div className="font-medium">March 2024</div>
+                      <div className="text-sm text-muted-foreground">Monthly Salary</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="font-medium text-right">£5,500.00</div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreVertical className="h-4 w-4" />
+                            <span className="sr-only">Open menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>View Details</DropdownMenuItem>
+                          <DropdownMenuItem>Download PDF</DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
-                  <Badge variant="outline">31 Jan 2025</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium">Tax Payment</div>
-                    <div className="text-sm text-muted-foreground">Second payment on account</div>
+
+                  <div className="flex items-start justify-between pt-4">
+                    <div>
+                      <div className="font-medium">February 2024</div>
+                      <div className="text-sm text-muted-foreground">Monthly Salary</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="font-medium text-right">£5,000.00</div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreVertical className="h-4 w-4" />
+                            <span className="sr-only">Open menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>View Details</DropdownMenuItem>
+                          <DropdownMenuItem>Download PDF</DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
-                  <Badge variant="outline">31 Jul 2024</Badge>
+
+                  {/* Add more payslips here */}
                 </div>
               </CardContent>
+              <CardFooter>
+                <Button variant="outline" className="w-full">
+                  <Upload className="mr-2 h-4 w-4" />
+                  Upload New Payslip
+                </Button>
+              </CardFooter>
             </Card>
+
+            <FinancialChart />
           </div>
         </main>
       </div>
