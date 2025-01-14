@@ -2,8 +2,29 @@
 
 import { useEffect, useState } from "react"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js'
 import { Line } from "react-chartjs-2"
-import { format, subMonths } from "date-fns"
+import { format } from "date-fns"
+
+// Register ChartJS components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+)
 
 export function FinancialChart() {
   const [chartData, setChartData] = useState<any>(null)
