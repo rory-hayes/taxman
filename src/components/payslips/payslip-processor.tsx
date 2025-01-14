@@ -161,6 +161,10 @@ export function PayslipProcessor() {
         title: "Success",
         description: "Payslip processed and saved successfully",
       })
+      
+      // Close dialog and refresh page
+      setStep('upload')
+      window.location.reload() // This will refresh the page to show new data
     } catch (error) {
       console.error(error)
       toast({
