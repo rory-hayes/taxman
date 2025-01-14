@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import { FinancialChart } from "../../components/dashboard/financial-chart"
 import { PayslipProcessor } from "../../components/payslips/payslip-processor"
+import { format } from 'date-fns'
 
 export const metadata: Metadata = {
   title: "Dashboard | TaxMan",
@@ -30,6 +31,14 @@ export default async function DashboardPage() {
   const supabase = createServerComponentClient({ cookies })
   const { data: { user } } = await supabase.auth.getUser()
   
+  // Fetch recent payslips
+  const { data: payslips } = await supabase
+    .from('payslips')
+    .select('*')
+    .eq('user_id', user?.id)
+    .order('month', { ascending: false })
+    .limit(3) // Show last 3 payslips
+
   const displayName = user?.user_metadata?.display_name || 
     user?.email?.split('@')[0] || 'User'
 
@@ -230,61 +239,56 @@ export default async function DashboardPage() {
                   <CardTitle>Payslips</CardTitle>
                   <PayslipProcessor />
                 </div>
-                <CardDescription>Upload and manage your payslips</CardDescription>
+                <CardDescription>Recent payslips</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Example payslips - will be replaced with real data */}
-                <div className="space-y-4 divide-y divide-border">
-                  <div className="flex items-start justify-between pt-4 first:pt-0">
-                    <div>
-                      <div className="font-medium">March 2024</div>
-                      <div className="text-sm text-muted-foreground">Monthly Salary</div>
+                {payslips && payslips.length > 0 ? (
+                  <div className="space-y-4 divide-y divide-border">
+                    {payslips.map((payslip) => (
+                      <div key={payslip.id} className="flex items-start justify-between pt-4 first:pt-0">
+                        <div>
+                          <div className="font-medium">
+                            {format(new Date(payslip.month), 'MMMM yyyy')}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Monthly Salary
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="font-medium text-right">
+                            £{payslip.data.grossPay.toLocaleString('en-GB', {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                          </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreVertical className="h-4 w-4" />
+                                <span className="sr-only">Open menu</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem>View Details</DropdownMenuItem>
+                              <DropdownMenuItem>Download PDF</DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-8 text-center">
+                    <div className="text-sm text-muted-foreground">
+                      No payslips uploaded yet
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="font-medium text-right">£5,500.00</div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreVertical className="h-4 w-4" />
-                            <span className="sr-only">Open menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>View Details</DropdownMenuItem>
-                          <DropdownMenuItem>Download PDF</DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                    <div className="mt-2 text-sm text-muted-foreground">
+                      Upload your first payslip to get started
                     </div>
                   </div>
-
-                  <div className="flex items-start justify-between pt-4">
-                    <div>
-                      <div className="font-medium">February 2024</div>
-                      <div className="text-sm text-muted-foreground">Monthly Salary</div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="font-medium text-right">£5,000.00</div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreVertical className="h-4 w-4" />
-                            <span className="sr-only">Open menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>View Details</DropdownMenuItem>
-                          <DropdownMenuItem>Download PDF</DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-
-                  {/* Add more payslips here */}
-                </div>
+                )}
               </CardContent>
             </Card>
           </div>

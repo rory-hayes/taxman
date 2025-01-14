@@ -4,13 +4,12 @@ import { useState } from "react"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Plus, Upload, Loader2 } from "lucide-react"
+import { Plus, Upload, Loader2, ChevronLeft, ChevronRight } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useRouter } from "next/navigation"
-import { format } from "date-fns"
-import { Calendar } from "@/components/ui/calendar"
+import { format, startOfMonth, subMonths, addMonths } from "date-fns"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 import { CalendarIcon } from "lucide-react"
@@ -158,6 +157,62 @@ export function PayslipProcessor() {
     }
   }
 
+  const MonthPicker = ({ selected, onSelect }: { 
+    selected: Date | undefined, 
+    onSelect: (date: Date) => void 
+  }) => {
+    const [year, setYear] = useState(selected?.getFullYear() || new Date().getFullYear())
+    const months = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ]
+
+    return (
+      <div className="p-3">
+        <div className="flex items-center justify-between mb-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setYear(year - 1)}
+            disabled={year <= 2020}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <div className="font-semibold">{year}</div>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setYear(year + 1)}
+            disabled={year >= new Date().getFullYear()}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {months.map((month, index) => {
+            const date = new Date(year, index)
+            const isDisabled = date > new Date() || date < new Date(2020, 0)
+            const isSelected = selected && 
+              selected.getMonth() === index && 
+              selected.getFullYear() === year
+
+            return (
+              <Button
+                key={month}
+                variant={isSelected ? "default" : "outline"}
+                className="w-full"
+                disabled={isDisabled}
+                onClick={() => onSelect(startOfMonth(date))}
+              >
+                {format(date, 'MMM')}
+              </Button>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -231,12 +286,9 @@ export function PayslipProcessor() {
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
+                    <MonthPicker
                       selected={selectedMonth}
                       onSelect={setSelectedMonth}
-                      disabled={(date) => date > new Date() || date < new Date(2020, 0)}
-                      initialFocus
                     />
                   </PopoverContent>
                 </Popover>

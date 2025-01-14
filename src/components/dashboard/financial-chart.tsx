@@ -2,32 +2,49 @@
 
 import { useEffect, useState } from "react"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-} from 'chart.js'
-import { Line } from "react-chartjs-2"
 import { format } from "date-fns"
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from "recharts"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart"
 
-// Register ChartJS components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-)
+const chartConfig = {
+  grossPay: {
+    label: "Gross Pay",
+    color: "hsl(var(--chart-1))",
+  },
+  netPay: {
+    label: "Net Pay",
+    color: "hsl(var(--chart-2))",
+  },
+  tax: {
+    label: "Tax",
+    color: "hsl(var(--chart-3))",
+  },
+  nationalInsurance: {
+    label: "National Insurance",
+    color: "hsl(var(--chart-4))",
+  },
+  pension: {
+    label: "Pension",
+    color: "hsl(var(--chart-5))",
+  },
+} satisfies ChartConfig
 
 export function FinancialChart() {
-  const [chartData, setChartData] = useState<any>(null)
+  const [chartData, setChartData] = useState<any[]>([])
   const supabase = createClientComponentClient()
 
   useEffect(() => {
@@ -38,79 +55,76 @@ export function FinancialChart() {
         .order('month', { ascending: true })
 
       if (payslips) {
-        const labels = payslips.map(p => format(new Date(p.month), 'MMM yyyy'))
-        const grossData = payslips.map(p => p.data.grossPay)
-        const netData = payslips.map(p => p.data.netPay)
-        const taxData = payslips.map(p => p.data.tax)
-        const niData = payslips.map(p => p.data.nationalInsurance)
-        const pensionData = payslips.map(p => p.data.pension)
+        const formattedData = payslips.map(p => ({
+          month: format(new Date(p.month), 'MMM yyyy'),
+          grossPay: p.data.grossPay,
+          netPay: p.data.netPay,
+          tax: p.data.tax,
+          nationalInsurance: p.data.nationalInsurance,
+          pension: p.data.pension
+        }))
 
-        setChartData({
-          labels,
-          datasets: [
-            {
-              label: 'Gross Pay',
-              data: grossData,
-              borderColor: 'rgb(59, 130, 246)',
-              backgroundColor: 'rgba(59, 130, 246, 0.5)',
-            },
-            {
-              label: 'Net Pay',
-              data: netData,
-              borderColor: 'rgb(34, 197, 94)',
-              backgroundColor: 'rgba(34, 197, 94, 0.5)',
-            },
-            {
-              label: 'Tax',
-              data: taxData,
-              borderColor: 'rgb(239, 68, 68)',
-              backgroundColor: 'rgba(239, 68, 68, 0.5)',
-            },
-            {
-              label: 'National Insurance',
-              data: niData,
-              borderColor: 'rgb(168, 85, 247)',
-              backgroundColor: 'rgba(168, 85, 247, 0.5)',
-            },
-            {
-              label: 'Pension',
-              data: pensionData,
-              borderColor: 'rgb(234, 179, 8)',
-              backgroundColor: 'rgba(234, 179, 8, 0.5)',
-            }
-          ]
-        })
+        setChartData(formattedData)
       }
     }
 
     fetchPayslips()
   }, [supabase])
 
-  if (!chartData) return null
+  if (chartData.length === 0) return null
 
   return (
-    <Line
-      data={chartData}
-      options={{
-        responsive: true,
-        plugins: {
-          legend: {
-            position: 'top' as const,
-          },
-          title: {
-            display: true,
-            text: 'Financial Overview'
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              callback: (value) => `£${value}`
-            }
-          }
-        }
-      }}
-    />
+    <ChartContainer config={chartConfig}>
+      <BarChart 
+        data={chartData}
+        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+        height={400}
+      >
+        <CartesianGrid strokeDasharray="3 3" vertical={false} />
+        <XAxis 
+          dataKey="month"
+          tickLine={false}
+          tickMargin={10}
+          axisLine={false}
+        />
+        <YAxis
+          tickFormatter={(value) => `£${value}`}
+          tickLine={false}
+          axisLine={false}
+        />
+        <Tooltip 
+          content={<ChartTooltipContent />}
+          formatter={(value) => `£${value}`}
+        />
+        <Legend content={<ChartLegendContent />} />
+        <Bar
+          dataKey="grossPay"
+          stackId="a"
+          fill="var(--color-grossPay)"
+          radius={[4, 4, 0, 0]}
+        />
+        <Bar
+          dataKey="netPay"
+          stackId="a"
+          fill="var(--color-netPay)"
+        />
+        <Bar
+          dataKey="tax"
+          stackId="a"
+          fill="var(--color-tax)"
+        />
+        <Bar
+          dataKey="nationalInsurance"
+          stackId="a"
+          fill="var(--color-nationalInsurance)"
+        />
+        <Bar
+          dataKey="pension"
+          stackId="a"
+          fill="var(--color-pension)"
+          radius={[0, 0, 4, 4]}
+        />
+      </BarChart>
+    </ChartContainer>
   )
 } 
