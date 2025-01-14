@@ -36,20 +36,28 @@ export function PayslipProcessor() {
   const { toast } = useToast()
 
   const processPayslip = async (file: File) => {
-    setIsProcessing(true)
     try {
       // 1. Upload to temporary storage
       const tempPath = `temp/${Date.now()}-${file.name}`
+      console.log('Uploading to temp storage:', tempPath)
+      
       const { error: uploadError } = await supabase.storage
         .from('payslips-temp')
         .upload(tempPath, file)
       
-      if (uploadError) throw uploadError
+      if (uploadError) {
+        console.error('Upload error:', uploadError)
+        throw uploadError
+      }
+
+      console.log('File uploaded successfully')
 
       // 2. Get public URL for OCR processing
       const { data: { publicUrl } } = supabase.storage
         .from('payslips-temp')
         .getPublicUrl(tempPath)
+
+      console.log('Processing URL:', publicUrl)
 
       // 3. Call your OCR API endpoint
       const response = await fetch('/api/ocr', {
@@ -58,72 +66,40 @@ export function PayslipProcessor() {
         body: JSON.stringify({ url: publicUrl })
       })
 
-      if (!response.ok) throw new Error('OCR processing failed')
+      if (!response.ok) {
+        const error = await response.text()
+        console.error('OCR API error:', error)
+        throw new Error('OCR processing failed')
+      }
 
       const extractedData = await response.json()
+      console.log('Extracted data:', extractedData)
+      
       setPayslipData(extractedData)
       setStep('verify')
     } catch (error) {
-      console.error(error)
-      toast({
-        title: "Error",
-        description: "Failed to process payslip",
-        variant: "destructive",
-      })
-    } finally {
-      setIsProcessing(false)
+      console.error('Processing error:', error)
+      throw error
     }
   }
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
+    setFile(file)
     
-    console.log('File selected:', file.name) // Debug log
+    console.log('File selected:', file.name)
     
     try {
       setIsProcessing(true)
       const user = (await supabase.auth.getUser()).data.user
       if (!user) throw new Error("Not authenticated")
 
-      console.log('Starting upload to temp storage') // Debug log
+      console.log('Starting OCR processing')
+      await processPayslip(file)
       
-      // 1. Upload to temporary storage
-      const tempPath = `temp/${Date.now()}-${file.name}`
-      const { error: uploadError, data } = await supabase.storage
-        .from('payslips-temp')
-        .upload(tempPath, file)
-      
-      if (uploadError) {
-        console.error('Upload error:', uploadError) // Debug log
-        throw uploadError
-      }
-
-      console.log('File uploaded, getting public URL') // Debug log
-
-      // 2. Get public URL for OCR processing
-      const { data: { publicUrl } } = supabase.storage
-        .from('payslips-temp')
-        .getPublicUrl(tempPath)
-
-      console.log('Calling OCR endpoint') // Debug log
-
-      // 3. Call your OCR API endpoint
-      const response = await fetch('/api/ocr', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: publicUrl })
-      })
-
-      if (!response.ok) throw new Error('OCR processing failed')
-
-      const extractedData = await response.json()
-      console.log('OCR data:', extractedData) // Debug log
-      
-      setPayslipData(extractedData)
-      setStep('verify')
     } catch (error) {
-      console.error('Processing error:', error) // Debug log
+      console.error('Processing error:', error)
       toast({
         title: "Error",
         description: "Failed to process payslip",

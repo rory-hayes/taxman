@@ -2,36 +2,28 @@ import { NextResponse } from 'next/server'
 import Tesseract from 'tesseract.js'
 
 export async function POST(request: Request) {
-  console.log('OCR endpoint called') // Debug log
+  console.log('OCR endpoint called')
   
   try {
     const { url } = await request.json()
-    console.log('Processing URL:', url) // Debug log
+    console.log('Processing URL:', url)
 
-    const { data: { text } } = await Tesseract.recognize(
-      url,
-      'eng',
-      { logger: m => console.log(m) }
-    )
-
-    console.log('Extracted text:', text) // Debug log
-
-    // Basic extraction logic (improve this based on your payslip format)
+    // For testing, return dummy data
     const extractedData = {
-      grossPay: parseFloat(text.match(/Gross Pay:?\s*[£€]?(\d+(?:\.\d{2})?)/i)?.[1] || '0'),
-      netPay: parseFloat(text.match(/Net Pay:?\s*[£€]?(\d+(?:\.\d{2})?)/i)?.[1] || '0'),
-      tax: parseFloat(text.match(/Tax:?\s*[£€]?(\d+(?:\.\d{2})?)/i)?.[1] || '0'),
-      nationalInsurance: parseFloat(text.match(/NI:?\s*[£€]?(\d+(?:\.\d{2})?)/i)?.[1] || '0'),
-      pension: parseFloat(text.match(/Pension:?\s*[£€]?(\d+(?:\.\d{2})?)/i)?.[1] || '0'),
+      grossPay: 5000,
+      netPay: 3500,
+      tax: 1000,
+      nationalInsurance: 300,
+      pension: 200,
       otherDeductions: 0,
       month: new Date().toISOString().slice(0, 7)
     }
 
-    console.log('Extracted data:', extractedData) // Debug log
-    return NextResponse.json(extractedData)
+    console.log('Returning data:', extractedData)
+    return Response.json(extractedData)
   } catch (error) {
-    console.error('OCR error:', error) // Debug log
-    return NextResponse.json(
+    console.error('OCR error:', error)
+    return Response.json(
       { error: 'Failed to process payslip' },
       { status: 500 }
     )

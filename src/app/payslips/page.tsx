@@ -13,12 +13,13 @@ export const metadata: Metadata = {
 
 export default async function PayslipsPage() {
   const supabase = createServerComponentClient({ cookies })
+  const { data: { user } } = await supabase.auth.getUser()
   
   // Fetch payslips from Supabase
   const { data: payslips } = await supabase
     .from('payslips')
     .select('*')
-    .eq('user_id', user.id)
+    .eq('user_id', user?.id)
     .order('month', { ascending: false })
 
   return (
