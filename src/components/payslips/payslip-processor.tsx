@@ -90,6 +90,9 @@ export function PayslipProcessor() {
 
       if (uploadError) throw uploadError
 
+      // Format the date to YYYY-MM-DD format
+      const formattedMonth = `${verifiedData.month}-01` // Add day to make it a valid date
+
       // Save data to database
       const { error: dbError } = await supabase
         .from('payslips')
@@ -97,7 +100,7 @@ export function PayslipProcessor() {
           user_id: user.id,
           file_path: filePath,
           file_name: file.name,
-          month: verifiedData.month,
+          month: formattedMonth, // Use the formatted date
           data: verifiedData,
           processed: true
         })
