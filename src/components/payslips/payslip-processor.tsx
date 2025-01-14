@@ -21,6 +21,7 @@ interface PayslipData {
 }
 
 export function PayslipProcessor() {
+  const [open, setOpen] = useState(false)
   const [step, setStep] = useState<'upload' | 'verify'>('upload')
   const [isProcessing, setIsProcessing] = useState(false)
   const [payslipData, setPayslipData] = useState<PayslipData | null>(null)
@@ -126,13 +127,12 @@ export function PayslipProcessor() {
   }
 
   return (
-    <Dialog open={step === 'verify'} onOpenChange={(open) => !open && setStep('upload')}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button 
           variant="outline" 
           size="icon" 
           className="h-8 w-8"
-          onClick={() => console.log('Upload button clicked')} // Debug log
         >
           <Plus className="h-4 w-4" />
           <span className="sr-only">Upload payslip</span>
