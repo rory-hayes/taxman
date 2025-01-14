@@ -32,28 +32,32 @@ export function PayslipProcessor() {
   // Step 2: Handle file selection
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0]
+    console.log('File selected:', selectedFile?.name) // Debug log
     if (!selectedFile) return
 
     try {
       setIsProcessing(true)
       setFile(selectedFile)
 
-      // Step 3 & 4: Process file and extract information
+      console.log('Creating FormData') // Debug log
       const formData = new FormData()
       formData.append('file', selectedFile)
 
+      console.log('Calling OCR endpoint') // Debug log
       const response = await fetch('/api/ocr', {
         method: 'POST',
         body: formData
       })
+
+      console.log('OCR Response status:', response.status) // Debug log
 
       if (!response.ok) {
         throw new Error('Failed to process payslip')
       }
 
       const extractedData = await response.json()
+      console.log('Extracted data:', extractedData) // Debug log
       
-      // Step 5: Show verification dialog
       setPayslipData(extractedData)
       setStep('verify')
     } catch (error) {
@@ -124,7 +128,12 @@ export function PayslipProcessor() {
   return (
     <Dialog open={step === 'verify'} onOpenChange={(open) => !open && setStep('upload')}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="icon" className="h-8 w-8">
+        <Button 
+          variant="outline" 
+          size="icon" 
+          className="h-8 w-8"
+          onClick={() => console.log('Upload button clicked')} // Debug log
+        >
           <Plus className="h-4 w-4" />
           <span className="sr-only">Upload payslip</span>
         </Button>
