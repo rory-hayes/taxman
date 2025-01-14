@@ -190,7 +190,8 @@ export function PayslipProcessor() {
         <DialogHeader>
           <DialogTitle>Process Payslip</DialogTitle>
           <DialogDescription>
-            Upload your payslip and verify the extracted information.
+            {step === 'upload' && "Upload your payslip to extract information."}
+            {step === 'verify' && "Please verify the extracted information."}
           </DialogDescription>
         </DialogHeader>
 
@@ -227,12 +228,12 @@ export function PayslipProcessor() {
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label>Verify extracted information</Label>
-              {/* Add form fields for verification */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-4">
                 <div>
                   <Label htmlFor="grossPay">Gross Pay</Label>
                   <Input
                     id="grossPay"
+                    type="number"
                     value={payslipData.grossPay}
                     onChange={(e) => setPayslipData({
                       ...payslipData,
@@ -240,14 +241,48 @@ export function PayslipProcessor() {
                     })}
                   />
                 </div>
+                <div>
+                  <Label htmlFor="netPay">Net Pay</Label>
+                  <Input
+                    id="netPay"
+                    type="number"
+                    value={payslipData.netPay}
+                    onChange={(e) => setPayslipData({
+                      ...payslipData,
+                      netPay: parseFloat(e.target.value)
+                    })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="tax">Tax</Label>
+                  <Input
+                    id="tax"
+                    type="number"
+                    value={payslipData.tax}
+                    onChange={(e) => setPayslipData({
+                      ...payslipData,
+                      tax: parseFloat(e.target.value)
+                    })}
+                  />
+                </div>
                 {/* Add other fields similarly */}
               </div>
+              <DialogFooter>
+                <Button 
+                  onClick={() => handleVerification(payslipData)}
+                  disabled={isProcessing}
+                >
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Confirm and Save'
+                  )}
+                </Button>
+              </DialogFooter>
             </div>
-            <DialogFooter>
-              <Button onClick={() => handleVerification(payslipData)}>
-                Confirm and Save
-              </Button>
-            </DialogFooter>
           </div>
         )}
       </DialogContent>
