@@ -142,7 +142,13 @@ export function PayslipProcessor() {
 
       // 1. Move file from temp to permanent storage
       const permanentPath = `${user.id}/${verifiedData.month}-${file?.name}`
-      // ... move file logic ...
+      
+      // Upload to permanent storage
+      const { error: uploadError } = await supabase.storage
+        .from('payslips')
+        .upload(permanentPath, file!)
+
+      if (uploadError) throw uploadError
 
       // 2. Save data to database
       const { error: dbError } = await supabase
@@ -152,7 +158,8 @@ export function PayslipProcessor() {
           file_path: permanentPath,
           file_name: file?.name,
           month: verifiedData.month,
-          data: verifiedData
+          data: verifiedData,
+          processed: true
         })
 
       if (dbError) throw dbError
@@ -164,7 +171,7 @@ export function PayslipProcessor() {
       
       // Close dialog and refresh page
       setStep('upload')
-      window.location.reload() // This will refresh the page to show new data
+      window.location.reload()
     } catch (error) {
       console.error(error)
       toast({

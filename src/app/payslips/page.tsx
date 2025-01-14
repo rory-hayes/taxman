@@ -18,6 +18,7 @@ export default async function PayslipsPage() {
   const { data: payslips } = await supabase
     .from('payslips')
     .select('*')
+    .eq('user_id', user.id)
     .order('month', { ascending: false })
 
   return (
