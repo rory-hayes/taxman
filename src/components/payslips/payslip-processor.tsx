@@ -9,6 +9,11 @@ import { useToast } from "@/components/ui/use-toast"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useRouter } from "next/navigation"
+import { format } from "date-fns"
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { cn } from "@/lib/utils"
+import { CalendarIcon } from "lucide-react"
 
 interface PayslipData {
   grossPay: number
@@ -29,6 +34,7 @@ export function PayslipProcessor() {
   const supabase = createClientComponentClient()
   const { toast } = useToast()
   const router = useRouter()
+  const [selectedMonth, setSelectedMonth] = useState<Date | undefined>(new Date())
 
   // Step 2: Handle file selection
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,37 +81,60 @@ export function PayslipProcessor() {
 
   // Step 6 & 7: Handle verification and save
   const handleVerification = async (verifiedData: PayslipData) => {
-    if (!file) return
+    if (!file || !selectedMonth) return
 
     try {
       setIsProcessing(true)
       const user = (await supabase.auth.getUser()).data.user
       if (!user) throw new Error("Not authenticated")
 
-      // Upload file to permanent storage
+      // Define filePath first
       const filePath = `${user.id}/${verifiedData.month}-${file.name}`
+      const formattedMonth = format(selectedMonth, 'yyyy-MM-dd')
+
+      // Check for existing payslip
+      const { data: existingPayslip } = await supabase
+        .from('payslips')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('month', formattedMonth)
+        .single()
+
+      if (existingPayslip) {
+        // Update existing payslip using filePath
+        const { error: updateError } = await supabase
+          .from('payslips')
+          .update({
+            file_path: filePath,
+            file_name: file.name,
+            data: verifiedData,
+            processed: true
+          })
+          .eq('id', existingPayslip.id)
+
+        if (updateError) throw updateError
+      } else {
+        // Insert new payslip
+        const { error: insertError } = await supabase
+          .from('payslips')
+          .insert({
+            user_id: user.id,
+            file_path: filePath,
+            file_name: file.name,
+            month: formattedMonth,
+            data: verifiedData,
+            processed: true
+          })
+
+        if (insertError) throw insertError
+      }
+
+      // Upload file to permanent storage
       const { error: uploadError } = await supabase.storage
         .from('payslips')
         .upload(filePath, file)
 
       if (uploadError) throw uploadError
-
-      // Format the date to YYYY-MM-DD format
-      const formattedMonth = `${verifiedData.month}-01` // Add day to make it a valid date
-
-      // Save data to database
-      const { error: dbError } = await supabase
-        .from('payslips')
-        .insert({
-          user_id: user.id,
-          file_path: filePath,
-          file_name: file.name,
-          month: formattedMonth, // Use the formatted date
-          data: verifiedData,
-          processed: true
-        })
-
-      if (dbError) throw dbError
 
       toast({
         title: "Success",
@@ -186,6 +215,32 @@ export function PayslipProcessor() {
         {step === 'verify' && payslipData && (
           <div className="grid gap-4 py-4">
             <div className="grid gap-4">
+              <div>
+                <Label>Payslip Month</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !selectedMonth && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {selectedMonth ? format(selectedMonth, 'MMMM yyyy') : <span>Pick a month</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={selectedMonth}
+                      onSelect={setSelectedMonth}
+                      disabled={(date) => date > new Date() || date < new Date(2020, 0)}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
               <div>
                 <Label htmlFor="grossPay">Gross Pay</Label>
                 <Input

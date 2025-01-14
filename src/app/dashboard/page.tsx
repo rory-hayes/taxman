@@ -164,7 +164,15 @@ export default async function DashboardPage() {
               </CardFooter>
             </Card>
 
-            <FinancialChart />
+            <Card className="col-span-full">
+              <CardHeader>
+                <CardTitle>Financial Overview</CardTitle>
+                <CardDescription>Your income and deductions over time</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FinancialChart />
+              </CardContent>
+            </Card>
 
             <Card className="col-span-full lg:col-span-2">
               <CardHeader className="px-7">
