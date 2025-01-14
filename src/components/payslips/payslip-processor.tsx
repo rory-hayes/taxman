@@ -78,8 +78,60 @@ export function PayslipProcessor() {
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
-    setFile(file)
-    await processPayslip(file)
+    
+    console.log('File selected:', file.name) // Debug log
+    
+    try {
+      setIsProcessing(true)
+      const user = (await supabase.auth.getUser()).data.user
+      if (!user) throw new Error("Not authenticated")
+
+      console.log('Starting upload to temp storage') // Debug log
+      
+      // 1. Upload to temporary storage
+      const tempPath = `temp/${Date.now()}-${file.name}`
+      const { error: uploadError, data } = await supabase.storage
+        .from('payslips-temp')
+        .upload(tempPath, file)
+      
+      if (uploadError) {
+        console.error('Upload error:', uploadError) // Debug log
+        throw uploadError
+      }
+
+      console.log('File uploaded, getting public URL') // Debug log
+
+      // 2. Get public URL for OCR processing
+      const { data: { publicUrl } } = supabase.storage
+        .from('payslips-temp')
+        .getPublicUrl(tempPath)
+
+      console.log('Calling OCR endpoint') // Debug log
+
+      // 3. Call your OCR API endpoint
+      const response = await fetch('/api/ocr', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: publicUrl })
+      })
+
+      if (!response.ok) throw new Error('OCR processing failed')
+
+      const extractedData = await response.json()
+      console.log('OCR data:', extractedData) // Debug log
+      
+      setPayslipData(extractedData)
+      setStep('verify')
+    } catch (error) {
+      console.error('Processing error:', error) // Debug log
+      toast({
+        title: "Error",
+        description: "Failed to process payslip",
+        variant: "destructive",
+      })
+    } finally {
+      setIsProcessing(false)
+    }
   }
 
   const handleVerification = async (verifiedData: PayslipData) => {

@@ -57,8 +57,8 @@ export default async function DashboardPage() {
             <span className="whitespace-nowrap overflow-hidden">Overview</span>
           </Link>
           <Link 
-            href="#payslips" 
-            className="flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-accent hover:text-accent-foreground" 
+            href="/payslips"
+            className="flex h-10 items-center gap-3 rounded-lg px-3 text-foreground hover:bg-accent hover:text-accent-foreground" 
           >
             <Receipt className="h-5 w-5 shrink-0" />
             <span className="whitespace-nowrap overflow-hidden">Payslips</span>

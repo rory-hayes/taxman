@@ -1,35 +1,36 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import Tesseract from 'tesseract.js'
 
 export async function POST(request: Request) {
+  console.log('OCR endpoint called') // Debug log
+  
   try {
     const { url } = await request.json()
-    
-    // Download PDF and convert to image (you'll need a PDF to image converter)
-    // For now, assuming we're working with image URLs
+    console.log('Processing URL:', url) // Debug log
+
     const { data: { text } } = await Tesseract.recognize(
       url,
       'eng',
       { logger: m => console.log(m) }
     )
 
-    // Process the extracted text to find relevant information
-    // This is where you'd implement your parsing logic
+    console.log('Extracted text:', text) // Debug log
+
+    // Basic extraction logic (improve this based on your payslip format)
     const extractedData = {
-      grossPay: 0, // Extract from text
-      netPay: 0,
-      tax: 0,
-      nationalInsurance: 0,
-      pension: 0,
+      grossPay: parseFloat(text.match(/Gross Pay:?\s*[£€]?(\d+(?:\.\d{2})?)/i)?.[1] || '0'),
+      netPay: parseFloat(text.match(/Net Pay:?\s*[£€]?(\d+(?:\.\d{2})?)/i)?.[1] || '0'),
+      tax: parseFloat(text.match(/Tax:?\s*[£€]?(\d+(?:\.\d{2})?)/i)?.[1] || '0'),
+      nationalInsurance: parseFloat(text.match(/NI:?\s*[£€]?(\d+(?:\.\d{2})?)/i)?.[1] || '0'),
+      pension: parseFloat(text.match(/Pension:?\s*[£€]?(\d+(?:\.\d{2})?)/i)?.[1] || '0'),
       otherDeductions: 0,
       month: new Date().toISOString().slice(0, 7)
     }
 
+    console.log('Extracted data:', extractedData) // Debug log
     return NextResponse.json(extractedData)
   } catch (error) {
-    console.error(error)
+    console.error('OCR error:', error) // Debug log
     return NextResponse.json(
       { error: 'Failed to process payslip' },
       { status: 500 }
