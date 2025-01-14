@@ -1,14 +1,11 @@
 import { NextResponse } from 'next/server'
-import Tesseract from 'tesseract.js'
 
 export async function POST(request: Request) {
-  console.log('OCR endpoint called')
-  
   try {
-    const { url } = await request.json()
-    console.log('Processing URL:', url)
+    // For testing, simulate OCR processing
+    await new Promise(resolve => setTimeout(resolve, 1000))
 
-    // For testing, return dummy data
+    // Return dummy data (replace with actual OCR logic)
     const extractedData = {
       grossPay: 5000,
       netPay: 3500,
@@ -19,11 +16,10 @@ export async function POST(request: Request) {
       month: new Date().toISOString().slice(0, 7)
     }
 
-    console.log('Returning data:', extractedData)
-    return Response.json(extractedData)
+    return NextResponse.json(extractedData)
   } catch (error) {
     console.error('OCR error:', error)
-    return Response.json(
+    return NextResponse.json(
       { error: 'Failed to process payslip' },
       { status: 500 }
     )
