@@ -155,93 +155,75 @@ export default async function DashboardPage() {
 
         {/* Main Content */}
         <main className="p-4">
-          <div className="grid auto-rows-max gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
-            <TaxCard />
-            <SavingsGoalCard />
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardDescription>Tax Paid This Year</CardDescription>
-                <CardTitle className="text-4xl">
-                  {CURRENCY_SYMBOL}{taxRecord?.total_tax_paid?.toFixed(2) || '0.00'}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-xs text-muted-foreground">
-                  {taxRecord ? 
-                    `${((taxRecord.total_tax_paid / taxRecord.estimated_annual_tax) * 100).toFixed(0)}% of estimated tax` 
-                    : 'No tax data available'}
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Progress 
-                  value={taxRecord ? (taxRecord.total_tax_paid / taxRecord.estimated_annual_tax) * 100 : 0} 
-                  className="w-full" 
-                  aria-label="Tax paid progress" 
-                />
-              </CardFooter>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardDescription>Savings Goal</CardDescription>
-                <CardTitle className="text-4xl">€12,000</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-xs text-muted-foreground">60% achieved</div>
-              </CardContent>
-              <CardFooter>
-                <Progress value={60} className="w-full" aria-label="60% of savings goal achieved" />
-              </CardFooter>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle>Financial Overview</CardTitle>
-                <CardDescription>Your tax and income summary for the current financial year.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <div className="text-4xl font-bold">{CURRENCY_SYMBOL}{taxRecord?.total_gross_pay?.toFixed(2) || '0.00'}</div>
-                  <div className="text-sm text-muted-foreground">Total Income</div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <div className="text-2xl font-bold text-emerald-600">
-                      {CURRENCY_SYMBOL}{taxRecord?.total_tax_paid?.toFixed(2) || '0.00'}
-                    </div>
-                    <div className="text-sm text-muted-foreground">Tax Paid</div>
+          <div className="grid auto-rows-max gap-4 md:gap-8">
+            {/* Top Row Cards */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {/* Tax Card */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardDescription>Tax Paid This Year</CardDescription>
+                  <CardTitle className="text-4xl">
+                    {CURRENCY_SYMBOL}{taxRecord?.total_tax_paid?.toFixed(2) || '0.00'}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-xs text-muted-foreground">
+                    {taxRecord ? 
+                      `${((taxRecord.total_tax_paid / taxRecord.estimated_annual_tax) * 100).toFixed(0)}% of estimated tax` 
+                      : 'No tax data available'}
                   </div>
-                  <div>
-                    <div className="text-2xl font-bold text-blue-600">
-                      {CURRENCY_SYMBOL}{taxRecord?.total_ni_paid?.toFixed(2) || '0.00'}
-                    </div>
-                    <div className="text-sm text-muted-foreground">National Insurance</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-purple-600">
-                      {CURRENCY_SYMBOL}{taxRecord?.total_pension?.toFixed(2) || '0.00'}
-                    </div>
-                    <div className="text-sm text-muted-foreground">Pension</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-emerald-600">
-                      {CURRENCY_SYMBOL}{(taxRecord?.total_gross_pay || 0) - 
-                        (taxRecord?.total_tax_paid || 0) - 
-                        (taxRecord?.total_ni_paid || 0) - 
-                        (taxRecord?.total_pension || 0)}
-                    </div>
-                    <div className="text-sm text-muted-foreground">Take Home Pay</div>
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Link href="/tax-analysis">
-                  <Button variant="outline">View Detailed Analysis</Button>
-                </Link>
-              </CardFooter>
-            </Card>
+                </CardContent>
+                <CardFooter>
+                  <Progress 
+                    value={taxRecord ? (taxRecord.total_tax_paid / taxRecord.estimated_annual_tax) * 100 : 0} 
+                    className="w-full" 
+                    aria-label="Tax paid progress" 
+                  />
+                </CardFooter>
+              </Card>
 
+              {/* Savings Goal Card */}
+              <SavingsGoalCard />
+
+              {/* Payslips Card */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardDescription>Recent Payslips</CardDescription>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-4xl">
+                      {payslips?.length || 0}
+                    </CardTitle>
+                    <PayslipProcessor />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-xs text-muted-foreground">
+                    {payslips?.length ? 'Latest payslip processed' : 'No payslips uploaded'}
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Financial Overview Card */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardDescription>Total Income</CardDescription>
+                  <CardTitle className="text-4xl">
+                    {CURRENCY_SYMBOL}{taxRecord?.total_gross_pay?.toFixed(2) || '0.00'}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-xs text-muted-foreground">
+                    Net Income: {CURRENCY_SYMBOL}
+                    {((taxRecord?.total_gross_pay || 0) - 
+                      (taxRecord?.total_tax_paid || 0) - 
+                      (taxRecord?.total_ni_paid || 0) - 
+                      (taxRecord?.total_pension || 0)).toFixed(2)}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Financial Chart */}
             <Card className="col-span-full">
               <CardHeader>
                 <CardTitle>Financial Overview</CardTitle>
@@ -249,115 +231,6 @@ export default async function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <FinancialChart />
-              </CardContent>
-            </Card>
-
-            <Card className="col-span-full lg:col-span-2">
-              <CardHeader className="px-7">
-                <CardTitle>Recent Transactions</CardTitle>
-                <CardDescription>Your latest financial activities.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Description</TableHead>
-                      <TableHead className="hidden sm:table-cell">Category</TableHead>
-                      <TableHead className="hidden sm:table-cell">Status</TableHead>
-                      <TableHead className="hidden md:table-cell">Date</TableHead>
-                      <TableHead className="text-right">Amount</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell>
-                        <div className="font-medium">Salary Payment</div>
-                        <div className="hidden text-sm text-muted-foreground md:inline">Monthly Income</div>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">Income</TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        <Badge className="text-xs" variant="secondary">
-                          Received
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">2024-03-25</TableCell>
-                      <TableCell className="text-right text-emerald-600">+£3,750.00</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>
-                        <div className="font-medium">Tax Payment</div>
-                        <div className="hidden text-sm text-muted-foreground md:inline">Quarterly Tax</div>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">Tax</TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        <Badge className="text-xs" variant="outline">
-                          Pending
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">2024-03-24</TableCell>
-                      <TableCell className="text-right text-red-600">-£950.00</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-
-            <Card className="col-span-full lg:col-span-1">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Payslips</CardTitle>
-                  <PayslipProcessor />
-                </div>
-                <CardDescription>Recent payslips</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {payslips && payslips.length > 0 ? (
-                  <div className="space-y-4 divide-y divide-border">
-                    {payslips.map((payslip) => (
-                      <div key={payslip.id} className="flex items-start justify-between pt-4 first:pt-0">
-                        <div>
-                          <div className="font-medium">
-                            {format(new Date(payslip.month), 'MMMM yyyy')}
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            Monthly Salary
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="font-medium text-right">
-                            £{payslip.data.grossPay.toLocaleString('en-GB', {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
-                          </div>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8">
-                                <MoreVertical className="h-4 w-4" />
-                                <span className="sr-only">Open menu</span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem>View Details</DropdownMenuItem>
-                              <DropdownMenuItem>Download PDF</DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <div className="text-sm text-muted-foreground">
-                      No payslips uploaded yet
-                    </div>
-                    <div className="mt-2 text-sm text-muted-foreground">
-                      Upload your first payslip to get started
-                    </div>
-                  </div>
-                )}
               </CardContent>
             </Card>
           </div>

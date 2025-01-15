@@ -67,18 +67,9 @@ export function FinancialChart() {
 
   return (
     <div className="w-full h-[400px]">
-      <BarChart 
-        data={chartData}
-        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-        width={800}
-        height={400}
-      >
-        <CartesianGrid strokeDasharray="3 3" vertical={false} />
-        <XAxis 
-          dataKey="month"
-          tickLine={false}
-          axisLine={false}
-        />
+      <BarChart data={chartData} className="w-full">
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="month" />
         <YAxis
           tickFormatter={(value) => `${CURRENCY_SYMBOL}${value}`}
           tickLine={false}
@@ -94,29 +85,27 @@ export function FinancialChart() {
         />
         <Legend />
         <Bar
-          dataKey="grossPay"
-          name="Gross Pay"
-          fill="hsl(var(--chart-1))"
-          radius={[4, 4, 0, 0]}
-        />
-        <Bar
           dataKey="netPay"
           name="Net Pay"
+          stackId="a"
           fill="hsl(var(--chart-2))"
         />
         <Bar
           dataKey="tax"
           name="Tax"
+          stackId="a"
           fill="hsl(var(--chart-3))"
         />
         <Bar
           dataKey="nationalInsurance"
           name="National Insurance"
+          stackId="a"
           fill="hsl(var(--chart-4))"
         />
         <Bar
           dataKey="pension"
           name="Pension"
+          stackId="a"
           fill="hsl(var(--chart-5))"
         />
       </BarChart>
