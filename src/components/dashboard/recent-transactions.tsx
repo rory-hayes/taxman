@@ -7,6 +7,7 @@ import { FileText, Receipt } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { CURRENCY_SYMBOL } from '@/lib/constants'
 
 type Transaction = {
   id: string
@@ -125,7 +126,7 @@ export function RecentTransactions() {
                 <TableCell className={`text-right ${
                   transaction.amount > 0 ? 'text-emerald-600' : 'text-red-600'
                 }`}>
-                  {transaction.amount > 0 ? '+' : ''}{transaction.amount.toLocaleString('en-GB', {
+                  {transaction.amount > 0 ? '+' : ''}{CURRENCY_SYMBOL}{transaction.amount.toLocaleString('en-GB', {
                     style: 'currency',
                     currency: 'GBP'
                   })}

@@ -8,6 +8,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Alert } from '@/components/ui/alert'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
+import { Label } from '@/components/ui/label'
+import { CURRENCY_SYMBOL } from '@/lib/constants'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 type Step = 'credentials' | 'profile' | 'goals'
 
@@ -50,6 +53,10 @@ export default function Register() {
     monthlyTarget: 0,
   })
 
+  const [savingsGoal, setSavingsGoal] = useState("")
+
+  const supabase = createClientComponentClient()
+
   const handleCredentialsSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -76,9 +83,25 @@ export default function Register() {
     setLoading(true)
 
     try {
-      // TODO: Save goals data to Supabase
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('No user found')
+
+      // Save user settings
+      const { error: settingsError } = await supabase
+        .from('user_settings')
+        .insert({
+          user_id: user.id,
+          savings_goal: goals.savingsGoal,
+          location: profile.location,
+          currency: 'EUR', // Default to EUR
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        })
+
+      if (settingsError) throw settingsError
+
       router.push('/auth/verify-email')
     } catch (error) {
+      console.error('Error saving settings:', error)
       setError(error instanceof Error ? error.message : 'An error occurred')
     } finally {
       setLoading(false)

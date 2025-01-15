@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/components/ui/use-toast"
 import { Loader2 } from "lucide-react"
+import { CURRENCY_SYMBOL } from '@/lib/constants'
 
 const currencies = [
   { value: "GBP", label: "British Pound (£)" },

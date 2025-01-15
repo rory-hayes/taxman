@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import { format } from "date-fns"
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from "recharts"
+import { CURRENCY_SYMBOL } from '@/lib/constants'
 
 type ChartData = {
   month: string
@@ -79,12 +80,12 @@ export function FinancialChart() {
           axisLine={false}
         />
         <YAxis
-          tickFormatter={(value) => `£${value}`}
+          tickFormatter={(value) => `${CURRENCY_SYMBOL}${value}`}
           tickLine={false}
           axisLine={false}
         />
         <Tooltip 
-          formatter={(value) => `£${value}`}
+          formatter={(value) => `${CURRENCY_SYMBOL}${value}`}
           labelStyle={{ color: 'black' }}
           contentStyle={{ 
             backgroundColor: 'white',

@@ -145,6 +145,52 @@ export function PayslipProcessor() {
       setFile(null)
       setPayslipData(null)
       router.refresh()
+
+      // Update tax records
+      const taxYear = getTaxYear(selectedMonth) // e.g., "2023-2024"
+      
+      // Get or create tax record for the year
+      const { data: taxRecord } = await supabase
+        .from('tax_records')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('tax_year', taxYear)
+        .single()
+
+      if (taxRecord) {
+        // Get number of months processed for this tax year
+        const { count: monthsProcessed } = await supabase
+          .from('payslips')
+          .select('id', { count: 'exact' })
+          .eq('user_id', user.id)
+          .eq('tax_year', taxYear)
+
+        // Update existing record
+        await supabase
+          .from('tax_records')
+          .update({
+            total_gross_pay: taxRecord.total_gross_pay + verifiedData.grossPay,
+            total_tax_paid: taxRecord.total_tax_paid + verifiedData.tax,
+            total_ni_paid: taxRecord.total_ni_paid + verifiedData.nationalInsurance,
+            total_pension: taxRecord.total_pension + verifiedData.pension,
+            estimated_annual_tax: (taxRecord.total_tax_paid + verifiedData.tax) * (12 / (monthsProcessed ?? 1)),
+            last_updated: new Date().toISOString()
+          })
+          .eq('id', taxRecord.id)
+      } else {
+        // Create new record
+        await supabase
+          .from('tax_records')
+          .insert({
+            user_id: user.id,
+            tax_year: taxYear,
+            total_gross_pay: verifiedData.grossPay,
+            total_tax_paid: verifiedData.tax,
+            total_ni_paid: verifiedData.nationalInsurance,
+            total_pension: verifiedData.pension,
+            estimated_annual_tax: verifiedData.tax * 12
+          })
+      }
     } catch (error) {
       console.error('Error saving payslip:', error)
       toast({
@@ -155,6 +201,18 @@ export function PayslipProcessor() {
     } finally {
       setIsProcessing(false)
     }
+  }
+
+  // Helper function to get tax year
+  function getTaxYear(date: Date): string {
+    const year = date.getFullYear()
+    const month = date.getMonth() + 1
+    
+    // Tax year runs from April 6th to April 5th
+    if (month < 4 || (month === 4 && date.getDate() <= 5)) {
+      return `${year-1}-${year}`
+    }
+    return `${year}-${year+1}`
   }
 
   const MonthPicker = ({ selected, onSelect }: { 

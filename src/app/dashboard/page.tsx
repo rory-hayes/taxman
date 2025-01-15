@@ -21,6 +21,22 @@ import {
 import { FinancialChart } from "../../components/dashboard/financial-chart"
 import { PayslipProcessor } from "../../components/payslips/payslip-processor"
 import { format } from 'date-fns'
+import { SavingsGoalCard } from "@/components/dashboard/savings-goal-card"
+import { TaxCard } from "@/components/dashboard/tax-card"
+import { CURRENCY_SYMBOL } from '@/lib/constants'
+
+function getCurrentTaxYear(): string {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = now.getMonth() + 1
+  const day = now.getDate()
+  
+  // Tax year runs from April 6th to April 5th
+  if (month < 4 || (month === 4 && day <= 5)) {
+    return `${year-1}-${year}`
+  }
+  return `${year}-${year+1}`
+}
 
 export const metadata: Metadata = {
   title: "Dashboard | TaxMan",
@@ -41,6 +57,13 @@ export default async function DashboardPage() {
 
   const displayName = user?.user_metadata?.display_name || 
     user?.email?.split('@')[0] || 'User'
+
+  const { data: taxRecord } = await supabase
+    .from('tax_records')
+    .select('*')
+    .eq('user_id', user?.id)
+    .eq('tax_year', getCurrentTaxYear())
+    .single()
 
   return (
     <div className="min-h-screen">
@@ -133,16 +156,29 @@ export default async function DashboardPage() {
         {/* Main Content */}
         <main className="p-4">
           <div className="grid auto-rows-max gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
+            <TaxCard />
+            <SavingsGoalCard />
+
             <Card>
               <CardHeader className="pb-2">
                 <CardDescription>Tax Paid This Year</CardDescription>
-                <CardTitle className="text-4xl">€8,329</CardTitle>
+                <CardTitle className="text-4xl">
+                  {CURRENCY_SYMBOL}{taxRecord?.total_tax_paid?.toFixed(2) || '0.00'}
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-xs text-muted-foreground">75% of estimated tax</div>
+                <div className="text-xs text-muted-foreground">
+                  {taxRecord ? 
+                    `${((taxRecord.total_tax_paid / taxRecord.estimated_annual_tax) * 100).toFixed(0)}% of estimated tax` 
+                    : 'No tax data available'}
+                </div>
               </CardContent>
               <CardFooter>
-                <Progress value={75} className="w-full" aria-label="75% of tax paid" />
+                <Progress 
+                  value={taxRecord ? (taxRecord.total_tax_paid / taxRecord.estimated_annual_tax) * 100 : 0} 
+                  className="w-full" 
+                  aria-label="Tax paid progress" 
+                />
               </CardFooter>
             </Card>
 
@@ -164,12 +200,45 @@ export default async function DashboardPage() {
                 <CardTitle>Financial Overview</CardTitle>
                 <CardDescription>Your tax and income summary for the current financial year.</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold">£45,231.89</div>
-                <div className="text-sm text-muted-foreground">Total Income</div>
+              <CardContent className="space-y-4">
+                <div>
+                  <div className="text-4xl font-bold">{CURRENCY_SYMBOL}{taxRecord?.total_gross_pay?.toFixed(2) || '0.00'}</div>
+                  <div className="text-sm text-muted-foreground">Total Income</div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-2xl font-bold text-emerald-600">
+                      {CURRENCY_SYMBOL}{taxRecord?.total_tax_paid?.toFixed(2) || '0.00'}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Tax Paid</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-blue-600">
+                      {CURRENCY_SYMBOL}{taxRecord?.total_ni_paid?.toFixed(2) || '0.00'}
+                    </div>
+                    <div className="text-sm text-muted-foreground">National Insurance</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-purple-600">
+                      {CURRENCY_SYMBOL}{taxRecord?.total_pension?.toFixed(2) || '0.00'}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Pension</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-emerald-600">
+                      {CURRENCY_SYMBOL}{(taxRecord?.total_gross_pay || 0) - 
+                        (taxRecord?.total_tax_paid || 0) - 
+                        (taxRecord?.total_ni_paid || 0) - 
+                        (taxRecord?.total_pension || 0)}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Take Home Pay</div>
+                  </div>
+                </div>
               </CardContent>
               <CardFooter>
-                <Button variant="outline">View Details</Button>
+                <Link href="/tax-analysis">
+                  <Button variant="outline">View Detailed Analysis</Button>
+                </Link>
               </CardFooter>
             </Card>
 
