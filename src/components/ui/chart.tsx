@@ -70,7 +70,7 @@ export function ChartTooltipContent({
             <span className="text-sm text-muted-foreground">
               {context.config[item.dataKey].label}:
             </span>
-            <span className="text-sm font-medium">{item.value}</span>
+            <span className="text-sm font-medium">£{item.value}</span>
           </div>
         ))}
       </div>

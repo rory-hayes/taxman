@@ -18,7 +18,7 @@ import {
   ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
+} from "../../components/ui/chart"
 
 const chartConfig = {
   grossPay: {
