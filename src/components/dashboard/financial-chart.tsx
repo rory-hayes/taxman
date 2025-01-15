@@ -1,114 +1,142 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
-import { format } from "date-fns"
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from "recharts"
-import { CURRENCY_SYMBOL } from '@/lib/constants'
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  ChartData,
+} from 'chart.js';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useEffect, useState } from 'react';
+import { CURRENCY_SYMBOL } from '@/lib/constants';
 
-type ChartData = {
-  month: string
-  grossPay: number
-  netPay: number
-  tax: number
-  nationalInsurance: number
-  pension: number
-}
+// Register ChartJS components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 export function FinancialChart() {
-  const [chartData, setChartData] = useState<ChartData[]>([])
-  const supabase = createClientComponentClient()
+  const [chartData, setChartData] = useState<ChartData<"line">>({
+    labels: [],
+    datasets: []
+  });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchPayslips() {
-      try {
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) return
+    const fetchData = async () => {
+      const supabase = createClientComponentClient();
+      const { data: payslips, error } = await supabase
+        .from('payslips')
+        .select('*')
+        .order('month', { ascending: true });
 
-        const { data: payslips, error } = await supabase
-          .from('payslips')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('month', { ascending: true })
+      if (error) {
+        console.error('Error fetching payslips:', error);
+        return;
+      }
 
-        if (error) {
-          console.error('Error fetching payslips:', error)
-          return
+      if (!payslips?.length) {
+        setIsLoading(false);
+        return;
+      }
+
+      const labels = payslips.map(p => new Date(p.month).toLocaleDateString('default', { month: 'short', year: 'numeric' }));
+      
+      const data = {
+        labels,
+        datasets: [
+          {
+            label: 'Gross Pay',
+            data: payslips.map(p => p.gross_pay || 0),
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.5)',
+            tension: 0.3,
+          },
+          {
+            label: 'Tax Paid',
+            data: payslips.map(p => p.tax_paid || 0),
+            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+            tension: 0.3,
+          },
+          {
+            label: 'Net Pay',
+            data: payslips.map(p => p.net_pay || 0),
+            borderColor: 'rgb(53, 162, 235)',
+            backgroundColor: 'rgba(53, 162, 235, 0.5)',
+            tension: 0.3,
+          },
+        ],
+      };
+
+      setChartData(data);
+      setIsLoading(false);
+    };
+
+    fetchData();
+  }, []);
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context: any) {
+            let label = context.dataset.label || '';
+            if (label) {
+              label += ': ';
+            }
+            if (context.parsed.y !== null) {
+              label += `${CURRENCY_SYMBOL}${context.parsed.y.toFixed(2)}`;
+            }
+            return label;
+          }
         }
-
-        if (payslips) {
-          console.log('Fetched payslips:', payslips) // Debug log
-          const formattedData = payslips.map(p => ({
-            month: format(new Date(p.month), 'MMM yyyy'),
-            grossPay: p.data.grossPay || 0,
-            netPay: p.data.netPay || 0,
-            tax: p.data.tax || 0,
-            nationalInsurance: p.data.nationalInsurance || 0,
-            pension: p.data.pension || 0
-          }))
-          console.log('Formatted chart data:', formattedData) // Debug log
-          setChartData(formattedData)
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: function(value: any) {
+            return `${CURRENCY_SYMBOL}${value}`;
+          }
         }
-      } catch (error) {
-        console.error('Error in fetchPayslips:', error)
       }
     }
+  };
 
-    fetchPayslips()
-  }, [supabase])
+  if (isLoading) {
+    return <div className="flex items-center justify-center h-[400px]">Loading...</div>;
+  }
 
-  if (chartData.length === 0) {
+  if (!chartData.labels?.length) {
     return (
-      <div className="flex h-[400px] items-center justify-center text-muted-foreground">
-        No payslip data available
+      <div className="flex items-center justify-center h-[400px] text-muted-foreground">
+        No financial data available. Upload some payslips to see your financial trends.
       </div>
-    )
+    );
   }
 
   return (
-    <div className="w-full h-[400px]">
-      <BarChart data={chartData} className="w-full">
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="month" />
-        <YAxis
-          tickFormatter={(value) => `${CURRENCY_SYMBOL}${value}`}
-          tickLine={false}
-          axisLine={false}
-        />
-        <Tooltip 
-          formatter={(value) => `${CURRENCY_SYMBOL}${value}`}
-          labelStyle={{ color: 'black' }}
-          contentStyle={{ 
-            backgroundColor: 'white',
-            border: '1px solid #e2e8f0'
-          }}
-        />
-        <Legend />
-        <Bar
-          dataKey="netPay"
-          name="Net Pay"
-          stackId="a"
-          fill="hsl(var(--chart-2))"
-        />
-        <Bar
-          dataKey="tax"
-          name="Tax"
-          stackId="a"
-          fill="hsl(var(--chart-3))"
-        />
-        <Bar
-          dataKey="nationalInsurance"
-          name="National Insurance"
-          stackId="a"
-          fill="hsl(var(--chart-4))"
-        />
-        <Bar
-          dataKey="pension"
-          name="Pension"
-          stackId="a"
-          fill="hsl(var(--chart-5))"
-        />
-      </BarChart>
+    <div className="h-[400px]">
+      <Line options={options} data={chartData} />
     </div>
-  )
+  );
 } 

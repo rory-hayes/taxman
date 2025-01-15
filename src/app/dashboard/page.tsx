@@ -197,9 +197,30 @@ export default async function DashboardPage() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-xs text-muted-foreground">
-                    {payslips?.length ? 'Latest payslip processed' : 'No payslips uploaded'}
+                  <div className="text-xs text-muted-foreground mb-2">
+                    {payslips?.length ? 'Latest payslips' : 'No payslips uploaded'}
                   </div>
+                  {payslips && payslips.length > 0 && (
+                    <div className="space-y-2">
+                      {payslips.map((payslip) => (
+                        <div key={payslip.id} className="flex items-center justify-between text-sm">
+                          <div className="flex items-center gap-2">
+                            <Receipt className="h-4 w-4 text-muted-foreground" />
+                            <span>{format(new Date(payslip.month), 'MMMM yyyy')}</span>
+                          </div>
+                          <span className="font-medium">
+                            {CURRENCY_SYMBOL}{payslip.gross_pay?.toFixed(2)}
+                          </span>
+                        </div>
+                      ))}
+                      <Link 
+                        href="/payslips" 
+                        className="flex items-center justify-center w-full text-xs text-muted-foreground hover:text-primary mt-2"
+                      >
+                        View all payslips →
+                      </Link>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
               
@@ -226,8 +247,25 @@ export default async function DashboardPage() {
             {/* Financial Chart */}
             <Card className="col-span-full">
               <CardHeader>
-                <CardTitle>Financial Overview</CardTitle>
-                <CardDescription>Your income and deductions over time</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Financial Overview</CardTitle>
+                    <CardDescription>Your income and deductions over time</CardDescription>
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem>Last 3 months</DropdownMenuItem>
+                      <DropdownMenuItem>Last 6 months</DropdownMenuItem>
+                      <DropdownMenuItem>This year</DropdownMenuItem>
+                      <DropdownMenuItem>All time</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </CardHeader>
               <CardContent>
                 <FinancialChart />
