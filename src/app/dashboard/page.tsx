@@ -208,9 +208,14 @@ export default async function DashboardPage() {
                             <Receipt className="h-4 w-4 text-muted-foreground" />
                             <span>{format(new Date(payslip.month), 'MMMM yyyy')}</span>
                           </div>
-                          <span className="font-medium">
-                            {CURRENCY_SYMBOL}{payslip.gross_pay?.toFixed(2)}
-                          </span>
+                          <div className="flex flex-col items-end">
+                            <span className="font-medium">
+                              {CURRENCY_SYMBOL}{payslip.gross_pay?.toFixed(2) || '0.00'}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              Net: {CURRENCY_SYMBOL}{payslip.net_pay?.toFixed(2) || '0.00'}
+                            </span>
+                          </div>
                         </div>
                       ))}
                       <Link 

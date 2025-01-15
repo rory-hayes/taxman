@@ -271,6 +271,44 @@ export function PayslipProcessor() {
     )
   }
 
+  const processPayslipData = async (text: string) => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not authenticated')
+
+    // Extract data using regex patterns
+    const grossPayMatch = text.match(/gross\s+pay[:\s]+([€£$]?\d+[\d,]*\.?\d*)/i);
+    const taxPaidMatch = text.match(/tax\s+paid[:\s]+([€£$]?\d+[\d,]*\.?\d*)/i);
+    const niPaidMatch = text.match(/national\s+insurance[:\s]+([€£$]?\d+[\d,]*\.?\d*)/i);
+    const netPayMatch = text.match(/net\s+pay[:\s]+([€£$]?\d+[\d,]*\.?\d*)/i);
+    const pensionMatch = text.match(/pension[:\s]+([€£$]?\d+[\d,]*\.?\d*)/i);
+
+    // Convert matched strings to numbers, removing currency symbols and commas
+    const parseAmount = (match: RegExpMatchArray | null) => {
+      if (!match) return null;
+      return parseFloat(match[1].replace(/[€£$,]/g, ''));
+    };
+
+    const payslipData = {
+      gross_pay: parseAmount(grossPayMatch),
+      tax_paid: parseAmount(taxPaidMatch),
+      ni_paid: parseAmount(niPaidMatch),
+      net_pay: parseAmount(netPayMatch),
+      pension: parseAmount(pensionMatch),
+      month: new Date().toISOString().slice(0, 7), // YYYY-MM format
+      user_id: user.id,
+      processed_at: new Date().toISOString()
+    };
+
+    // Save to Supabase
+    const { error } = await supabase
+      .from('payslips')
+      .insert([payslipData]);
+
+    if (error) throw error;
+    
+    return payslipData;
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
