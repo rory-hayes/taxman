@@ -210,10 +210,10 @@ export default async function DashboardPage() {
                           </div>
                           <div className="flex flex-col items-end">
                             <span className="font-medium">
-                              {CURRENCY_SYMBOL}{payslip.gross_pay?.toFixed(2) || '0.00'}
+                              {CURRENCY_SYMBOL}{payslip.data.grossPay?.toFixed(2) || '0.00'}
                             </span>
                             <span className="text-xs text-muted-foreground">
-                              Net: {CURRENCY_SYMBOL}{payslip.net_pay?.toFixed(2) || '0.00'}
+                              Net: {CURRENCY_SYMBOL}{payslip.data.netPay?.toFixed(2) || '0.00'}
                             </span>
                           </div>
                         </div>
