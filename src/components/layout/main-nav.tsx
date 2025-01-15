@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { 
   DollarSign, PiggyBank, Calculator, BarChart3, 
-  Receipt, Settings, Search, User, Bell 
+  Receipt, Settings, Search, User, Bell, FileText 
 } from 'lucide-react'
 
 export function MainNav() {
@@ -44,6 +44,16 @@ export function MainNav() {
         >
           <Receipt className="h-5 w-5 shrink-0" />
           <span className="whitespace-nowrap overflow-hidden">Payslips</span>
+        </Link>
+        <Link 
+          href="/receipts"
+          className={cn(
+            "flex h-10 items-center gap-3 rounded-lg px-3 text-foreground hover:bg-accent hover:text-accent-foreground",
+            pathname === '/receipts' && "bg-accent text-accent-foreground"
+          )}
+        >
+          <FileText className="h-5 w-5 shrink-0" />
+          <span className="whitespace-nowrap overflow-hidden">Receipts</span>
         </Link>
         <Link 
           href="/savings" 

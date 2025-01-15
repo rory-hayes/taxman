@@ -4,87 +4,78 @@ import { useEffect, useState } from "react"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import { format } from "date-fns"
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from "recharts"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "../../components/ui/chart"
 
-const chartConfig = {
-  grossPay: {
-    label: "Gross Pay",
-    color: "hsl(var(--chart-1))",
-  },
-  netPay: {
-    label: "Net Pay",
-    color: "hsl(var(--chart-2))",
-  },
-  tax: {
-    label: "Tax",
-    color: "hsl(var(--chart-3))",
-  },
-  nationalInsurance: {
-    label: "National Insurance",
-    color: "hsl(var(--chart-4))",
-  },
-  pension: {
-    label: "Pension",
-    color: "hsl(var(--chart-5))",
-  },
-} satisfies ChartConfig
+type ChartData = {
+  month: string
+  grossPay: number
+  netPay: number
+  tax: number
+  nationalInsurance: number
+  pension: number
+}
 
 export function FinancialChart() {
-  const [chartData, setChartData] = useState<any[]>([])
+  const [chartData, setChartData] = useState<ChartData[]>([])
   const supabase = createClientComponentClient()
 
   useEffect(() => {
-    const fetchPayslips = async () => {
-      const { data: payslips } = await supabase
-        .from('payslips')
-        .select('*')
-        .order('month', { ascending: true })
+    async function fetchPayslips() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
 
-      if (payslips) {
-        const formattedData = payslips.map(p => ({
-          month: format(new Date(p.month), 'MMM yyyy'),
-          grossPay: p.data.grossPay,
-          netPay: p.data.netPay,
-          tax: p.data.tax,
-          nationalInsurance: p.data.nationalInsurance,
-          pension: p.data.pension
-        }))
+        const { data: payslips, error } = await supabase
+          .from('payslips')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('month', { ascending: true })
 
-        setChartData(formattedData)
+        if (error) {
+          console.error('Error fetching payslips:', error)
+          return
+        }
+
+        if (payslips) {
+          console.log('Fetched payslips:', payslips) // Debug log
+          const formattedData = payslips.map(p => ({
+            month: format(new Date(p.month), 'MMM yyyy'),
+            grossPay: p.data.grossPay || 0,
+            netPay: p.data.netPay || 0,
+            tax: p.data.tax || 0,
+            nationalInsurance: p.data.nationalInsurance || 0,
+            pension: p.data.pension || 0
+          }))
+          console.log('Formatted chart data:', formattedData) // Debug log
+          setChartData(formattedData)
+        }
+      } catch (error) {
+        console.error('Error in fetchPayslips:', error)
       }
     }
 
     fetchPayslips()
   }, [supabase])
 
-  if (chartData.length === 0) return null
+  if (chartData.length === 0) {
+    return (
+      <div className="flex h-[400px] items-center justify-center text-muted-foreground">
+        No payslip data available
+      </div>
+    )
+  }
 
   return (
-    <ChartContainer config={chartConfig}>
+    <div className="w-full h-[400px]">
       <BarChart 
         data={chartData}
         margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+        width={800}
         height={400}
       >
         <CartesianGrid strokeDasharray="3 3" vertical={false} />
         <XAxis 
           dataKey="month"
           tickLine={false}
-          tickMargin={10}
           axisLine={false}
         />
         <YAxis
@@ -93,38 +84,41 @@ export function FinancialChart() {
           axisLine={false}
         />
         <Tooltip 
-          content={<ChartTooltipContent />}
           formatter={(value) => `£${value}`}
+          labelStyle={{ color: 'black' }}
+          contentStyle={{ 
+            backgroundColor: 'white',
+            border: '1px solid #e2e8f0'
+          }}
         />
-        <Legend content={<ChartLegendContent />} />
+        <Legend />
         <Bar
           dataKey="grossPay"
-          stackId="a"
-          fill="var(--color-grossPay)"
+          name="Gross Pay"
+          fill="hsl(var(--chart-1))"
           radius={[4, 4, 0, 0]}
         />
         <Bar
           dataKey="netPay"
-          stackId="a"
-          fill="var(--color-netPay)"
+          name="Net Pay"
+          fill="hsl(var(--chart-2))"
         />
         <Bar
           dataKey="tax"
-          stackId="a"
-          fill="var(--color-tax)"
+          name="Tax"
+          fill="hsl(var(--chart-3))"
         />
         <Bar
           dataKey="nationalInsurance"
-          stackId="a"
-          fill="var(--color-nationalInsurance)"
+          name="National Insurance"
+          fill="hsl(var(--chart-4))"
         />
         <Bar
           dataKey="pension"
-          stackId="a"
-          fill="var(--color-pension)"
-          radius={[0, 0, 4, 4]}
+          name="Pension"
+          fill="hsl(var(--chart-5))"
         />
       </BarChart>
-    </ChartContainer>
+    </div>
   )
 } 

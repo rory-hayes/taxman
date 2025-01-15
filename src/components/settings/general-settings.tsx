@@ -5,7 +5,6 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/components/ui/use-toast"
@@ -21,7 +20,6 @@ const countries = [
   { value: "GB", label: "United Kingdom" },
   { value: "US", label: "United States" },
   { value: "IE", label: "Ireland" },
-  // Add more countries as needed
 ]
 
 const dateFormats = [
@@ -46,7 +44,6 @@ export function GeneralSettings({ initialSettings }: { initialSettings: any }) {
     timezone: initialSettings?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
   })
   const [isSaving, setIsSaving] = useState(false)
-  
   const supabase = createClientComponentClient()
   const router = useRouter()
   const { toast } = useToast()
@@ -88,9 +85,7 @@ export function GeneralSettings({ initialSettings }: { initialSettings: any }) {
     <Card>
       <CardHeader>
         <CardTitle>General Settings</CardTitle>
-        <CardDescription>
-          Configure your global preferences for the application
-        </CardDescription>
+        <CardDescription>Configure your global preferences</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid gap-4 md:grid-cols-2">

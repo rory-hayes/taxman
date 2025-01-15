@@ -7,7 +7,7 @@ import { useAuth } from '@/providers/supabase-auth-provider'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Alert } from '@/components/ui/alert'
-import { Select } from '@/components/ui/select'
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 
 type Step = 'credentials' | 'profile' | 'goals'
 
@@ -151,15 +151,17 @@ export default function Register() {
                 <label htmlFor="ageRange" className="block text-sm font-medium text-gray-700">
                   Age Range
                 </label>
-                <Select
-                  value={profile.ageRange}
-                  onChange={(e) => setProfile({ ...profile, ageRange: e.target.value })}
-                >
-                  <option value="18-24">18-24</option>
-                  <option value="25-34">25-34</option>
-                  <option value="35-44">35-44</option>
-                  <option value="45-54">45-54</option>
-                  <option value="55+">55+</option>
+                <Select value={profile.ageRange} onValueChange={(value) => setProfile({ ...profile, ageRange: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select age range" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="18-24">18-24</SelectItem>
+                    <SelectItem value="25-34">25-34</SelectItem>
+                    <SelectItem value="35-44">35-44</SelectItem>
+                    <SelectItem value="45-54">45-54</SelectItem>
+                    <SelectItem value="55+">55+</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
 
