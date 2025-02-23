@@ -10,10 +10,9 @@ export async function GET(request: Request) {
     const supabase = createRouteHandlerClient({ cookies })
     await supabase.auth.exchangeCodeForSession(code)
     
-    // Redirect to dashboard after successful authentication
-    return NextResponse.redirect(new URL('/dashboard', requestUrl.origin))
+    // Redirect to onboarding after verification
+    return NextResponse.redirect(`${requestUrl.origin}/auth/onboarding`)
   }
 
-  // If no code, redirect to home
-  return NextResponse.redirect(new URL('/', requestUrl.origin))
+  return NextResponse.redirect(`${requestUrl.origin}/auth/error`)
 } 
