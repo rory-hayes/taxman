@@ -84,101 +84,54 @@ export function PayslipProcessor() {
 
     try {
       setIsProcessing(true)
-      const user = (await supabase.auth.getUser()).data.user
+      const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error("Not authenticated")
 
-      // Define filePath first
-      const filePath = `${user.id}/${verifiedData.month}-${file.name}`
       const formattedMonth = format(selectedMonth, 'yyyy-MM-dd')
+      const taxYear = getTaxYear(selectedMonth)
 
-      // Check for existing payslip
-      const { data: existingPayslip } = await supabase
+      // Save payslip
+      const { data: payslip, error: payslipError } = await supabase
         .from('payslips')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('month', formattedMonth)
+        .upsert({
+          user_id: user.id,
+          month: formattedMonth,
+          data: verifiedData,
+          gross_pay: verifiedData.grossPay,
+          net_pay: verifiedData.netPay,
+          tax_paid: verifiedData.tax,
+          ni_paid: verifiedData.nationalInsurance,
+          pension: verifiedData.pension,
+          tax_year: taxYear,
+        })
+        .select()
         .single()
 
-      if (existingPayslip) {
-        // Update existing payslip using filePath
-        const { error: updateError } = await supabase
-          .from('payslips')
-          .update({
-            file_path: filePath,
-            file_name: file.name,
-            data: verifiedData,
-            processed: true
-          })
-          .eq('id', existingPayslip.id)
+      if (payslipError) throw payslipError
 
-        if (updateError) throw updateError
-      } else {
-        // Insert new payslip
-        const { error: insertError } = await supabase
-          .from('payslips')
-          .insert({
-            user_id: user.id,
-            file_path: filePath,
-            file_name: file.name,
-            month: formattedMonth,
-            data: verifiedData,
-            processed: true
-          })
-
-        if (insertError) throw insertError
-      }
-
-      // Upload file to permanent storage
-      const { error: uploadError } = await supabase.storage
-        .from('payslips')
-        .upload(filePath, file)
-
-      if (uploadError) throw uploadError
-
-      toast({
-        title: "Success",
-        description: "Payslip processed and saved successfully"
-      })
-
-      // Reset form and refresh data
-      setStep('upload')
-      setFile(null)
-      setPayslipData(null)
-      router.refresh()
-
-      // Update tax records
-      const taxYear = getTaxYear(selectedMonth) // e.g., "2023-2024"
-      
-      // Get or create tax record for the year
-      const { data: taxRecord } = await supabase
+      // Update tax records for the year
+      const { data: existingTaxRecord } = await supabase
         .from('tax_records')
         .select('*')
         .eq('user_id', user.id)
         .eq('tax_year', taxYear)
         .single()
 
-      if (taxRecord) {
-        // Get number of months processed for this tax year
-        const { count: monthsProcessed } = await supabase
-          .from('payslips')
-          .select('id', { count: 'exact' })
-          .eq('user_id', user.id)
-          .eq('tax_year', taxYear)
-
+      if (existingTaxRecord) {
         // Update existing record
         await supabase
           .from('tax_records')
           .update({
-            total_gross_pay: taxRecord.total_gross_pay + verifiedData.grossPay,
-            total_tax_paid: taxRecord.total_tax_paid + verifiedData.tax,
-            total_ni_paid: taxRecord.total_ni_paid + verifiedData.nationalInsurance,
-            total_pension: taxRecord.total_pension + verifiedData.pension,
-            estimated_annual_tax: (taxRecord.total_tax_paid + verifiedData.tax) * (12 / (monthsProcessed ?? 1)),
+            total_gross_pay: existingTaxRecord.total_gross_pay + verifiedData.grossPay,
+            total_tax_paid: existingTaxRecord.total_tax_paid + verifiedData.tax,
+            total_ni_paid: existingTaxRecord.total_ni_paid + verifiedData.nationalInsurance,
+            total_pension: existingTaxRecord.total_pension + verifiedData.pension,
+            estimated_annual_tax: (verifiedData.tax * 12), // Simple estimation
             last_updated: new Date().toISOString()
           })
-          .eq('id', taxRecord.id)
+          .eq('id', existingTaxRecord.id)
       } else {
-        // Create new record
+        // Create new tax record
         await supabase
           .from('tax_records')
           .insert({
@@ -188,11 +141,18 @@ export function PayslipProcessor() {
             total_tax_paid: verifiedData.tax,
             total_ni_paid: verifiedData.nationalInsurance,
             total_pension: verifiedData.pension,
-            estimated_annual_tax: verifiedData.tax * 12
+            estimated_annual_tax: verifiedData.tax * 12,
           })
       }
+
+      toast({
+        title: "Success",
+        description: "Payslip processed and saved successfully"
+      })
+
+      router.refresh()
     } catch (error) {
-      console.error('Error saving payslip:', error)
+      console.error('Error:', error)
       toast({
         title: "Error",
         description: "Failed to save payslip",
@@ -200,6 +160,7 @@ export function PayslipProcessor() {
       })
     } finally {
       setIsProcessing(false)
+      setOpen(false)
     }
   }
 

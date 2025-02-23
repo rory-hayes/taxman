@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 export default function OnboardingPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
+    displayName: '',
     ageRange: '',
     location: '',
     jobField: '',
@@ -32,12 +33,20 @@ export default function OnboardingPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('No user found')
 
+      // Update user metadata with display name
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: { display_name: formData.displayName }
+      })
+
+      if (updateError) throw updateError
+
       // Create or update user profile with onboarding data
       const { error } = await supabase
         .from('user_profiles')
         .upsert({
           user_id: user.id,
           email: user.email,
+          display_name: formData.displayName,
           age_range: formData.ageRange,
           location: formData.location,
           job_field: formData.jobField,
@@ -77,6 +86,17 @@ export default function OnboardingPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="displayName">Display Name</Label>
+            <Input
+              id="displayName"
+              value={formData.displayName}
+              onChange={(e) => setFormData({...formData, displayName: e.target.value})}
+              placeholder="How should we call you?"
+              required
+            />
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="ageRange">Age Range</Label>
             <Select
