@@ -33,15 +33,20 @@ export default function OnboardingPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('No user found')
 
-      // Update user metadata with display name
-      const { error: updateError } = await supabase.auth.updateUser({
-        data: { display_name: formData.displayName }
+      // First update auth user metadata
+      const { error: updateUserError } = await supabase.auth.updateUser({
+        data: {
+          display_name: formData.displayName,
+          age_range: formData.ageRange,
+          job_field: formData.jobField,
+          location: formData.location
+        }
       })
 
-      if (updateError) throw updateError
+      if (updateUserError) throw updateUserError
 
-      // Create or update user profile with onboarding data
-      const { error } = await supabase
+      // Then create/update user profile
+      const { error: profileError } = await supabase
         .from('user_profiles')
         .upsert({
           user_id: user.id,
@@ -50,21 +55,24 @@ export default function OnboardingPage() {
           age_range: formData.ageRange,
           location: formData.location,
           job_field: formData.jobField,
-          monthly_income: parseFloat(formData.monthlyIncome),
-          savings_goal: parseFloat(formData.savingsGoal),
-          payday_date: parseInt(formData.paydayDate),
+          monthly_income: parseFloat(formData.monthlyIncome) || 0,
+          savings_goal: parseFloat(formData.savingsGoal) || 0,
+          payday_date: parseInt(formData.paydayDate) || 1,
           onboarding_completed: true,
+          updated_at: new Date().toISOString()
         })
 
-      if (error) throw error
+      if (profileError) throw profileError
 
       toast({
         title: "Setup Complete",
         description: "Your profile has been created successfully.",
       })
 
-      router.push('/dashboard')
+      // Force a hard refresh to update the session
+      window.location.href = '/dashboard'
     } catch (error) {
+      console.error('Error:', error)
       toast({
         title: "Error",
         description: "Failed to save your profile. Please try again.",

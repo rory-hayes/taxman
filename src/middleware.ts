@@ -12,11 +12,17 @@ export async function middleware(request: NextRequest) {
 
   // Public paths that don't require auth
   const isPublicPath = request.nextUrl.pathname.startsWith('/auth')
+  const isHomePage = request.nextUrl.pathname === '/'
   const isOnboardingPath = request.nextUrl.pathname === '/auth/onboarding'
+
+  // Allow public access to home page
+  if (isHomePage) {
+    return res
+  }
 
   if (!session) {
     // If no session and trying to access protected pages, redirect to login
-    if (!isPublicPath) {
+    if (!isPublicPath && !isHomePage) {
       return NextResponse.redirect(new URL('/auth/login', request.url))
     }
   } else {
