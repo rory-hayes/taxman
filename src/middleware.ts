@@ -10,26 +10,39 @@ export async function middleware(request: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession()
 
-  // If user is authenticated but trying to access auth pages, redirect to dashboard
-  if (session && request.nextUrl.pathname.startsWith('/auth')) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
-  }
+  // Public paths that don't require auth
+  const isPublicPath = request.nextUrl.pathname.startsWith('/auth')
+  const isOnboardingPath = request.nextUrl.pathname === '/auth/onboarding'
 
-  // If no session and trying to access protected pages, redirect to login
-  if (!session && !request.nextUrl.pathname.startsWith('/auth')) {
-    return NextResponse.redirect(new URL('/auth/login', request.url))
-  }
+  if (!session) {
+    // If no session and trying to access protected pages, redirect to login
+    if (!isPublicPath) {
+      return NextResponse.redirect(new URL('/auth/login', request.url))
+    }
+  } else {
+    // If authenticated
+    try {
+      // Check onboarding status
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('onboarding_completed')
+        .eq('user_id', session.user.id)
+        .single()
 
-  // If authenticated but hasn't completed onboarding, redirect to onboarding
-  if (session && !request.nextUrl.pathname.startsWith('/auth/onboarding')) {
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('onboarding_completed')
-      .eq('user_id', session.user.id)
-      .single()
+      // If onboarding not completed and not on onboarding page, redirect to onboarding
+      if (!profile?.onboarding_completed && !isOnboardingPath) {
+        return NextResponse.redirect(new URL('/auth/onboarding', request.url))
+      }
 
-    if (!profile?.onboarding_completed) {
-      return NextResponse.redirect(new URL('/auth/onboarding', request.url))
+      // If onboarding completed and trying to access auth pages, redirect to dashboard
+      if (profile?.onboarding_completed && isPublicPath) {
+        return NextResponse.redirect(new URL('/dashboard', request.url))
+      }
+    } catch (error) {
+      // If profile doesn't exist yet and not on onboarding, redirect to onboarding
+      if (!isOnboardingPath) {
+        return NextResponse.redirect(new URL('/auth/onboarding', request.url))
+      }
     }
   }
 
