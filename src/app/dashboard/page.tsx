@@ -24,6 +24,7 @@ import { format } from 'date-fns'
 import { SavingsGoalCard } from "@/components/dashboard/savings-goal-card"
 import { TaxCard } from "@/components/dashboard/tax-card"
 import { CURRENCY_SYMBOL } from '@/lib/constants'
+import { OnboardingDialog } from "@/components/onboarding-dialog"
 
 function getCurrentTaxYear(): string {
   const now = new Date()
@@ -66,219 +67,222 @@ export default async function DashboardPage() {
     .single()
 
   return (
-    <div className="min-h-screen">
-      {/* Sidebar */}
-      <aside className="fixed left-0 top-0 z-40 h-full w-16 border-r bg-background transition-all duration-300 hover:w-64">
-        <div className="flex h-14 items-center justify-center border-b px-4">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <DollarSign className="h-5 w-5" />
-            </div>
-            <span className="whitespace-nowrap text-lg font-semibold">
-              TaxMan
-            </span>
-          </Link>
-        </div>
-        
-        <nav className="flex flex-col gap-2 p-2">
-          <Link 
-            href="#overview" 
-            className="flex h-10 items-center gap-3 rounded-lg bg-accent px-3 text-accent-foreground" 
-          >
-            <BarChart3 className="h-5 w-5 shrink-0" />
-            <span className="whitespace-nowrap overflow-hidden">Overview</span>
-          </Link>
-          <Link 
-            href="/payslips"
-            className="flex h-10 items-center gap-3 rounded-lg px-3 text-foreground hover:bg-accent hover:text-accent-foreground" 
-          >
-            <Receipt className="h-5 w-5 shrink-0" />
-            <span className="whitespace-nowrap overflow-hidden">Payslips</span>
-          </Link>
-          <Link 
-            href="#savings" 
-            className="flex h-10 items-center gap-3 rounded-lg px-3 text-foreground hover:bg-accent hover:text-accent-foreground" 
-          >
-            <PiggyBank className="h-5 w-5 shrink-0" />
-            <span className="whitespace-nowrap overflow-hidden">Savings</span>
-          </Link>
-          <Link 
-            href="#tax" 
-            className="flex h-10 items-center gap-3 rounded-lg px-3 text-foreground hover:bg-accent hover:text-accent-foreground" 
-          >
-            <Calculator className="h-5 w-5 shrink-0" />
-            <span className="whitespace-nowrap overflow-hidden">Tax Analysis</span>
-          </Link>
-          
-          <div className="my-2 border-t" />
-          
-          <Link 
-            href="#search" 
-            className="flex h-10 items-center gap-3 rounded-lg px-3 text-foreground hover:bg-accent hover:text-accent-foreground" 
-          >
-            <Search className="h-5 w-5 shrink-0" />
-            <span className="whitespace-nowrap overflow-hidden">Search</span>
-          </Link>
-          <Link 
-            href="#notifications" 
-            className="flex h-10 items-center gap-3 rounded-lg px-3 text-foreground hover:bg-accent hover:text-accent-foreground" 
-          >
-            <Bell className="h-5 w-5 shrink-0" />
-            <span className="whitespace-nowrap overflow-hidden">Notifications</span>
-          </Link>
-        </nav>
-
-        <nav className="absolute bottom-0 left-0 right-0 flex flex-col gap-2 border-t p-2">
-          <Link 
-            href="#profile" 
-            className="flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-          >
-            <User className="h-5 w-5 shrink-0" />
-            <span className="whitespace-nowrap overflow-hidden">Profile</span>
-          </Link>
-          <Link 
-            href="#settings" 
-            className="flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-          >
-            <Settings className="h-5 w-5 shrink-0" />
-            <span className="whitespace-nowrap overflow-hidden">Settings</span>
-          </Link>
-        </nav>
-      </aside>
-
-      {/* Main Content Area */}
-      <div className="pl-16">
-        {/* Header */}
-        <header className="sticky top-0 z-30 flex h-14 items-center border-b bg-background px-4">
-          <h1 className="text-lg font-semibold">Overview</h1>
-        </header>
-
-        {/* Main Content */}
-        <main className="p-4">
-          <div className="grid auto-rows-max gap-4 md:gap-8">
-            {/* Top Row Cards */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              {/* Tax Card */}
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardDescription>Tax Paid This Year</CardDescription>
-                  <CardTitle className="text-4xl">
-                    {CURRENCY_SYMBOL}{taxRecord?.total_tax_paid?.toFixed(2) || '0.00'}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-xs text-muted-foreground">
-                    {taxRecord ? 
-                      `${((taxRecord.total_tax_paid / taxRecord.estimated_annual_tax) * 100).toFixed(0)}% of estimated tax` 
-                      : 'No tax data available'}
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Progress 
-                    value={taxRecord ? (taxRecord.total_tax_paid / taxRecord.estimated_annual_tax) * 100 : 0} 
-                    className="w-full" 
-                    aria-label="Tax paid progress" 
-                  />
-                </CardFooter>
-              </Card>
-
-              {/* Savings Goal Card */}
-              <SavingsGoalCard />
-
-              {/* Payslips Card */}
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardDescription>Recent Payslips</CardDescription>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-4xl">
-                      {payslips?.length || 0}
-                    </CardTitle>
-                    <PayslipProcessor />
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-xs text-muted-foreground mb-2">
-                    {payslips?.length ? 'Latest payslips' : 'No payslips uploaded'}
-                  </div>
-                  {payslips && payslips.length > 0 && (
-                    <div className="space-y-2">
-                      {payslips.map((payslip) => (
-                        <div key={payslip.id} className="flex items-center justify-between text-sm">
-                          <div className="flex items-center gap-2">
-                            <Receipt className="h-4 w-4 text-muted-foreground" />
-                            <span>{format(new Date(payslip.month), 'MMMM yyyy')}</span>
-                          </div>
-                          <div className="flex flex-col items-end">
-                            <span className="font-medium">
-                              {CURRENCY_SYMBOL}{payslip.data.grossPay?.toFixed(2) || '0.00'}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              Net: {CURRENCY_SYMBOL}{payslip.data.netPay?.toFixed(2) || '0.00'}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                      <Link 
-                        href="/payslips" 
-                        className="flex items-center justify-center w-full text-xs text-muted-foreground hover:text-primary mt-2"
-                      >
-                        View all payslips →
-                      </Link>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-              
-              {/* Financial Overview Card */}
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardDescription>Total Income</CardDescription>
-                  <CardTitle className="text-4xl">
-                    {CURRENCY_SYMBOL}{taxRecord?.total_gross_pay?.toFixed(2) || '0.00'}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-xs text-muted-foreground">
-                    Net Income: {CURRENCY_SYMBOL}
-                    {((taxRecord?.total_gross_pay || 0) - 
-                      (taxRecord?.total_tax_paid || 0) - 
-                      (taxRecord?.total_ni_paid || 0) - 
-                      (taxRecord?.total_pension || 0)).toFixed(2)}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Financial Chart */}
-            <Card className="col-span-full">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>Financial Overview</CardTitle>
-                    <CardDescription>Your income and deductions over time</CardDescription>
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>Last 3 months</DropdownMenuItem>
-                      <DropdownMenuItem>Last 6 months</DropdownMenuItem>
-                      <DropdownMenuItem>This year</DropdownMenuItem>
-                      <DropdownMenuItem>All time</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <FinancialChart />
-              </CardContent>
-            </Card>
+    <>
+      <OnboardingDialog />
+      <div className="min-h-screen">
+        {/* Sidebar */}
+        <aside className="fixed left-0 top-0 z-40 h-full w-16 border-r bg-background transition-all duration-300 hover:w-64">
+          <div className="flex h-14 items-center justify-center border-b px-4">
+            <Link href="/" className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <DollarSign className="h-5 w-5" />
+              </div>
+              <span className="whitespace-nowrap text-lg font-semibold">
+                TaxMan
+              </span>
+            </Link>
           </div>
-        </main>
+          
+          <nav className="flex flex-col gap-2 p-2">
+            <Link 
+              href="#overview" 
+              className="flex h-10 items-center gap-3 rounded-lg bg-accent px-3 text-accent-foreground" 
+            >
+              <BarChart3 className="h-5 w-5 shrink-0" />
+              <span className="whitespace-nowrap overflow-hidden">Overview</span>
+            </Link>
+            <Link 
+              href="/payslips"
+              className="flex h-10 items-center gap-3 rounded-lg px-3 text-foreground hover:bg-accent hover:text-accent-foreground" 
+            >
+              <Receipt className="h-5 w-5 shrink-0" />
+              <span className="whitespace-nowrap overflow-hidden">Payslips</span>
+            </Link>
+            <Link 
+              href="#savings" 
+              className="flex h-10 items-center gap-3 rounded-lg px-3 text-foreground hover:bg-accent hover:text-accent-foreground" 
+            >
+              <PiggyBank className="h-5 w-5 shrink-0" />
+              <span className="whitespace-nowrap overflow-hidden">Savings</span>
+            </Link>
+            <Link 
+              href="#tax" 
+              className="flex h-10 items-center gap-3 rounded-lg px-3 text-foreground hover:bg-accent hover:text-accent-foreground" 
+            >
+              <Calculator className="h-5 w-5 shrink-0" />
+              <span className="whitespace-nowrap overflow-hidden">Tax Analysis</span>
+            </Link>
+            
+            <div className="my-2 border-t" />
+            
+            <Link 
+              href="#search" 
+              className="flex h-10 items-center gap-3 rounded-lg px-3 text-foreground hover:bg-accent hover:text-accent-foreground" 
+            >
+              <Search className="h-5 w-5 shrink-0" />
+              <span className="whitespace-nowrap overflow-hidden">Search</span>
+            </Link>
+            <Link 
+              href="#notifications" 
+              className="flex h-10 items-center gap-3 rounded-lg px-3 text-foreground hover:bg-accent hover:text-accent-foreground" 
+            >
+              <Bell className="h-5 w-5 shrink-0" />
+              <span className="whitespace-nowrap overflow-hidden">Notifications</span>
+            </Link>
+          </nav>
+
+          <nav className="absolute bottom-0 left-0 right-0 flex flex-col gap-2 border-t p-2">
+            <Link 
+              href="#profile" 
+              className="flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+            >
+              <User className="h-5 w-5 shrink-0" />
+              <span className="whitespace-nowrap overflow-hidden">Profile</span>
+            </Link>
+            <Link 
+              href="#settings" 
+              className="flex h-10 items-center gap-3 rounded-lg px-3 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+            >
+              <Settings className="h-5 w-5 shrink-0" />
+              <span className="whitespace-nowrap overflow-hidden">Settings</span>
+            </Link>
+          </nav>
+        </aside>
+
+        {/* Main Content Area */}
+        <div className="pl-16">
+          {/* Header */}
+          <header className="sticky top-0 z-30 flex h-14 items-center border-b bg-background px-4">
+            <h1 className="text-lg font-semibold">Overview</h1>
+          </header>
+
+          {/* Main Content */}
+          <main className="p-4">
+            <div className="grid auto-rows-max gap-4 md:gap-8">
+              {/* Top Row Cards */}
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                {/* Tax Card */}
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardDescription>Tax Paid This Year</CardDescription>
+                    <CardTitle className="text-4xl">
+                      {CURRENCY_SYMBOL}{taxRecord?.total_tax_paid?.toFixed(2) || '0.00'}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-xs text-muted-foreground">
+                      {taxRecord ? 
+                        `${((taxRecord.total_tax_paid / taxRecord.estimated_annual_tax) * 100).toFixed(0)}% of estimated tax` 
+                        : 'No tax data available'}
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <Progress 
+                      value={taxRecord ? (taxRecord.total_tax_paid / taxRecord.estimated_annual_tax) * 100 : 0} 
+                      className="w-full" 
+                      aria-label="Tax paid progress" 
+                    />
+                  </CardFooter>
+                </Card>
+
+                {/* Savings Goal Card */}
+                <SavingsGoalCard />
+
+                {/* Payslips Card */}
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardDescription>Recent Payslips</CardDescription>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-4xl">
+                        {payslips?.length || 0}
+                      </CardTitle>
+                      <PayslipProcessor />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-xs text-muted-foreground mb-2">
+                      {payslips?.length ? 'Latest payslips' : 'No payslips uploaded'}
+                    </div>
+                    {payslips && payslips.length > 0 && (
+                      <div className="space-y-2">
+                        {payslips.map((payslip) => (
+                          <div key={payslip.id} className="flex items-center justify-between text-sm">
+                            <div className="flex items-center gap-2">
+                              <Receipt className="h-4 w-4 text-muted-foreground" />
+                              <span>{format(new Date(payslip.month), 'MMMM yyyy')}</span>
+                            </div>
+                            <div className="flex flex-col items-end">
+                              <span className="font-medium">
+                                {CURRENCY_SYMBOL}{payslip.data.grossPay?.toFixed(2) || '0.00'}
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                Net: {CURRENCY_SYMBOL}{payslip.data.netPay?.toFixed(2) || '0.00'}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                        <Link 
+                          href="/payslips" 
+                          className="flex items-center justify-center w-full text-xs text-muted-foreground hover:text-primary mt-2"
+                        >
+                          View all payslips →
+                        </Link>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+                
+                {/* Financial Overview Card */}
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardDescription>Total Income</CardDescription>
+                    <CardTitle className="text-4xl">
+                      {CURRENCY_SYMBOL}{taxRecord?.total_gross_pay?.toFixed(2) || '0.00'}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-xs text-muted-foreground">
+                      Net Income: {CURRENCY_SYMBOL}
+                      {((taxRecord?.total_gross_pay || 0) - 
+                        (taxRecord?.total_tax_paid || 0) - 
+                        (taxRecord?.total_ni_paid || 0) - 
+                        (taxRecord?.total_pension || 0)).toFixed(2)}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Financial Chart */}
+              <Card className="col-span-full">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>Financial Overview</CardTitle>
+                      <CardDescription>Your income and deductions over time</CardDescription>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>Last 3 months</DropdownMenuItem>
+                        <DropdownMenuItem>Last 6 months</DropdownMenuItem>
+                        <DropdownMenuItem>This year</DropdownMenuItem>
+                        <DropdownMenuItem>All time</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <FinancialChart />
+                </CardContent>
+              </Card>
+            </div>
+          </main>
+        </div>
       </div>
-    </div>
+    </>
   )
 } 

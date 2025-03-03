@@ -2,17 +2,18 @@
 
 import { useState } from "react"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
+import { useRouter } from "next/navigation"
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [verificationCode, setVerificationCode] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [step, setStep] = useState<'register' | 'verify'>('register')
+  const [step, setStep] = useState<'initial' | 'verification'>('initial')
   const router = useRouter()
   const supabase = createClientComponentClient()
   const { toast } = useToast()
@@ -32,12 +33,11 @@ export default function RegisterPage() {
 
       if (error) throw error
 
-      setStep('verify')
+      setStep('verification')
       toast({
-        title: "Verification email sent",
-        description: "Please check your email to verify your account before continuing.",
+        title: "Verification code sent",
+        description: "Please check your email for the verification code.",
       })
-
     } catch (error) {
       toast({
         title: "Error",
@@ -49,39 +49,29 @@ export default function RegisterPage() {
     }
   }
 
-  const handleCompleteSetup = async () => {
+  const handleVerification = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
     setIsLoading(true)
 
     try {
-      // Check if user is authenticated and email is verified
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (!user || !user.email_confirmed_at) {
-        toast({
-          title: "Email not verified",
-          description: "Please verify your email before continuing.",
-          variant: "destructive",
-        })
-        return
-      }
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token: verificationCode,
+        type: 'signup'
+      })
 
-      // Create user profile after email verification
-      const { error: profileError } = await supabase
-        .from('user_profiles')
-        .insert([
-          {
-            user_id: user.id,
-            email: user.email,
-          }
-        ])
+      if (error) throw error
 
-      if (profileError) throw profileError
+      toast({
+        title: "Success",
+        description: "Your email has been verified. Redirecting to dashboard...",
+      })
 
       router.push('/dashboard')
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to complete setup. Please try again.",
+        description: "Invalid verification code. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -95,11 +85,14 @@ export default function RegisterPage() {
         <div className="space-y-2 text-center">
           <h1 className="text-3xl font-bold">Create an account</h1>
           <p className="text-muted-foreground">
-            Enter your email to create your account
+            {step === 'initial' 
+              ? "Enter your email to create your account"
+              : "Enter the verification code sent to your email"
+            }
           </p>
         </div>
 
-        {step === 'register' ? (
+        {step === 'initial' ? (
           <form onSubmit={handleSignUp} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -131,18 +124,26 @@ export default function RegisterPage() {
             </Button>
           </form>
         ) : (
-          <div className="space-y-4">
-            <p className="text-center text-muted-foreground">
-              Please check your email and verify your account before continuing.
-            </p>
+          <form onSubmit={handleVerification} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="code">Verification Code</Label>
+              <Input
+                id="code"
+                type="text"
+                placeholder="Enter code"
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value)}
+                required
+              />
+            </div>
             <Button
               className="w-full"
-              onClick={handleCompleteSetup}
+              type="submit"
               disabled={isLoading}
             >
-              {isLoading ? "Completing setup..." : "Complete Setup"}
+              {isLoading ? "Verifying..." : "Verify Email"}
             </Button>
-          </div>
+          </form>
         )}
       </div>
     </div>
