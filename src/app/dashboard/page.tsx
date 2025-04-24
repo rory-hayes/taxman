@@ -1,7 +1,8 @@
 import { Metadata } from "next"
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import Link from "next/link"
+import * as React from 'react'
 import { 
   Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter 
 } from "@/components/ui/card"
@@ -45,7 +46,18 @@ export const metadata: Metadata = {
 }
 
 export default async function DashboardPage() {
-  const supabase = createServerComponentClient({ cookies })
+  const cookieStore = cookies()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value
+        },
+      },
+    }
+  )
   const { data: { user } } = await supabase.auth.getUser()
   
   // Fetch recent payslips
@@ -102,8 +114,7 @@ export default async function DashboardPage() {
               <CardFooter>
                 <Progress 
                   value={taxRecord ? (taxRecord.total_tax_paid / taxRecord.estimated_annual_tax) * 100 : 0} 
-                  className="w-full bg-gray-200" 
-                  indicatorClassName="bg-gradient-to-r from-indigo-500 to-purple-500"
+                  className="w-full [&>div]:bg-gradient-to-r [&>div]:from-indigo-500 [&>div]:to-purple-500 bg-gray-200" 
                   aria-label="Tax paid progress" 
                 />
               </CardFooter>
