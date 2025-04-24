@@ -16,8 +16,8 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <div className="border-b">
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-gray-50 to-gray-100">
+      <div className="border-b bg-white/80 backdrop-blur-md">
         <div className="flex h-16 items-center px-4">
           <MainNav className="mx-6" />
           <div className="ml-auto flex items-center space-x-4">
@@ -25,7 +25,9 @@ export default async function DashboardLayout({
           </div>
         </div>
       </div>
-      <div className="flex-1">{children}</div>
+      <div className="flex-1 px-4 py-8 md:px-8 lg:px-12">
+        {children}
+      </div>
     </div>
   )
 } 

@@ -348,3 +348,160 @@ Deployment Environments
   - CI pipeline validates both configurations
 
 * * * * *
+
+Database Schema
+--------------
+
+### Core Tables
+
+#### 1. user_profiles
+- Primary user information and preferences
+```sql
+create table public.user_profiles (
+    id uuid references auth.users on delete cascade primary key,
+    email text unique not null,
+    display_name text,
+    age_range text not null,
+    location text not null,
+    job_field text not null,
+    monthly_income decimal(10,2),
+    monthly_savings_goal decimal(10,2),
+    payday_date integer check (payday_date between 1 and 31),
+    bank_account_details jsonb,
+    preferences jsonb,
+    onboarding_completed boolean default false,
+    created_at timestamptz default now(),
+    updated_at timestamptz default now()
+);
+```
+
+#### 2. payslips
+- Stores uploaded payslip information and extracted data
+```sql
+create table public.payslips (
+    id uuid primary key default uuid_generate_v4(),
+    user_id uuid references auth.users on delete cascade not null,
+    month date not null,
+    tax_year text not null,
+    file_name text,
+    file_path text,
+    gross_pay decimal(10,2) not null,
+    net_pay decimal(10,2) not null,
+    tax_paid decimal(10,2) not null,
+    ni_paid decimal(10,2) not null,
+    pension decimal(10,2) default 0,
+    other_deductions decimal(10,2) default 0,
+    data jsonb not null,
+    processed boolean default false,
+    processed_at timestamptz,
+    created_at timestamptz default now(),
+    updated_at timestamptz default now(),
+    unique(user_id, month)
+);
+```
+
+#### 3. tax_records
+- Annual tax summaries and calculations
+```sql
+create table public.tax_records (
+    id uuid primary key default uuid_generate_v4(),
+    user_id uuid references auth.users on delete cascade not null,
+    tax_year text not null,
+    total_gross_pay decimal(10,2) default 0,
+    total_tax_paid decimal(10,2) default 0,
+    total_ni_paid decimal(10,2) default 0,
+    total_pension decimal(10,2) default 0,
+    estimated_annual_tax decimal(10,2),
+    last_updated timestamptz default now(),
+    created_at timestamptz default now(),
+    unique(user_id, tax_year)
+);
+```
+
+### Financial Management
+
+#### 4. savings_goals
+- User savings targets and progress tracking
+```sql
+create table public.savings_goals (
+    id uuid primary key default uuid_generate_v4(),
+    user_id uuid references auth.users on delete cascade not null,
+    name text not null,
+    target_amount decimal(10,2) not null,
+    current_amount decimal(10,2) default 0,
+    target_date date,
+    category text,
+    is_shared boolean default false,
+    partner_id uuid references auth.users(id),
+    created_at timestamptz default now(),
+    updated_at timestamptz default now()
+);
+```
+
+#### 5. bank_statements
+- Uploaded bank statement records
+```sql
+create table public.bank_statements (
+    id uuid primary key default uuid_generate_v4(),
+    user_id uuid references auth.users on delete cascade not null,
+    statement_date date not null,
+    file_name text,
+    file_path text,
+    processed boolean default false,
+    data jsonb,
+    created_at timestamptz default now(),
+    updated_at timestamptz default now()
+);
+```
+
+#### 6. transactions
+- Individual financial transactions
+```sql
+create table public.transactions (
+    id uuid primary key default uuid_generate_v4(),
+    user_id uuid references auth.users on delete cascade not null,
+    bank_statement_id uuid references public.bank_statements(id),
+    transaction_date date not null,
+    description text not null,
+    amount decimal(10,2) not null,
+    category text,
+    type text check (type in ('income', 'expense', 'transfer')),
+    created_at timestamptz default now()
+);
+```
+
+### Notifications & Communication
+
+#### 7. notifications
+- System notifications and reminders
+```sql
+create table public.notifications (
+    id uuid primary key default uuid_generate_v4(),
+    user_id uuid references auth.users on delete cascade not null,
+    type text not null,
+    title text not null,
+    message text not null,
+    read boolean default false,
+    data jsonb,
+    created_at timestamptz default now()
+);
+```
+
+### Security & Performance
+
+#### Storage Buckets
+- `payslips`: Secure storage for payslip files
+- `bank_statements`: Secure storage for bank statement files
+
+#### Indexes
+- `idx_payslips_user_month`: Optimize payslip queries by user and month
+- `idx_tax_records_user_year`: Optimize tax record queries by user and year
+- `idx_transactions_user_date`: Optimize transaction queries by user and date
+- `idx_notifications_user_read`: Optimize unread notification queries
+- `idx_savings_goals_user`: Optimize savings goal queries by user
+- `idx_bank_statements_user_date`: Optimize bank statement queries by user and date
+
+#### Row Level Security (RLS)
+All tables have RLS enabled with policies ensuring users can only access their own data or shared data (in the case of savings goals with partners).
+
+* * * * *

@@ -51,3 +51,63 @@ These rules guide the development of the application based on the Supastarter bo
   - Deployment to Visualiser for user testing and feedback collection.
 - Ensure that the deployment process is well-documented in `documentation.md` for seamless replication and scalability.
 
+### 9. **Database Schema Guidelines**
+
+#### Table Naming & Structure
+- Use snake_case for all database objects (tables, columns, functions)
+- All tables must have:
+  - `id uuid primary key`
+  - `created_at timestamptz`
+  - `updated_at timestamptz` (where applicable)
+  - `user_id` foreign key for user-specific data
+
+#### Core Tables
+1. **user_profiles**
+   - Central user information storage
+   - Contains onboarding and preference data
+   - Required fields: email, age_range, location, job_field
+
+2. **payslips**
+   - Stores payslip data and OCR results
+   - Maintains monthly salary information
+   - Links to physical files in storage
+
+3. **tax_records**
+   - Annual tax summaries
+   - Tracks cumulative financial data
+   - Used for tax projections and analysis
+
+#### Financial Tables
+4. **savings_goals**
+   - Personal and shared savings targets
+   - Progress tracking
+   - Partner collaboration support
+
+5. **bank_statements**
+   - Bank statement storage and processing
+   - OCR data extraction results
+   - Transaction categorization
+
+6. **transactions**
+   - Individual financial transactions
+   - Category-based organization
+   - Income/expense tracking
+
+#### Support Tables
+7. **notifications**
+   - System notifications
+   - Email reminders
+   - User alerts
+
+#### Security Requirements
+- Enable Row Level Security (RLS) on all tables
+- Implement appropriate access policies
+- Encrypt sensitive data in jsonb fields
+- Use secure storage buckets for files
+
+#### Performance Considerations
+- Maintain indexes on frequently queried columns
+- Use appropriate data types for columns
+- Consider partitioning for large tables
+- Implement efficient query patterns
+
